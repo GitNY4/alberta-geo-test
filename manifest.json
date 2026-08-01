@@ -1,1 +1,15 @@
-{"name":"TestTrack","short_name":"TestTrack","start_url":"./","display":"standalone","background_color":"#062f1c","theme_color":"#062f1c","icons":[{"src":"icon-512.png","sizes":"512x512","type":"image/png"}]}
+{
+"name":"TestTrack",
+"short_name":"TestTrack",
+"start_url":"./",
+"display":"standalone",
+"background_color":"#062f1c",
+"theme_color":"#062f1c",
+"icons":[
+{
+"src":"icon-512.png",
+"sizes":"512x512",
+"type":"image/png"
+}
+]
+}
