@@ -1,20 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta charset="utf-8">
 <title>TestTrack</title>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link rel="manifest" href="manifest.json">
+
 <meta name="theme-color" content="#062f1c">
 
+
 <style>
+
 body{
 font-family:Arial;
 background:#062f1c;
 color:#fff;
 padding:20px
 }
+
 
 .container{
 max-width:600px;
@@ -24,13 +30,16 @@ padding:25px;
 border-radius:12px
 }
 
+
 label{
 display:block;
 font-weight:bold;
 margin-top:15px
 }
 
+
 input,select,textarea,button{
+
 width:100%;
 box-sizing:border-box;
 padding:12px;
@@ -38,60 +47,101 @@ margin-top:6px;
 border-radius:8px;
 border:none;
 font-size:16px
+
 }
+
 
 textarea{
 height:120px
 }
 
+
 button{
+
 margin-top:15px;
 background:#19a463;
 color:#fff;
-font-weight:bold
+font-weight:bold;
+cursor:pointer
+
 }
+
 
 .secondary{
 background:#125936
 }
 
+
 .hidden{
 display:none
 }
 
+
 .info{
+
 margin-top:20px;
 padding:12px;
 background:#083820;
 border-radius:8px
+
 }
 
+
 .help{
+
 margin-top:15px;
 padding:12px;
 background:#062b19;
 border-radius:8px;
 font-size:14px;
 line-height:1.5
+
 }
+
+
+.badge{
+
+padding:6px;
+border-radius:6px;
+display:inline-block;
+margin-top:5px;
+font-weight:bold;
+
+}
+
+
 </style>
+
 </head>
+
+
 
 <body>
 
+
 <div class="container">
+
 
 <h2>TestTrack</h2>
 
+
+
 <label>Tester</label>
+
 <select id="tester">
+
 <option>Nick</option>
 <option>Josh</option>
+
 </select>
 
 
+
+
 <label>Test Flow</label>
+
 <select id="flow">
+
 <option>Geolocation</option>
 <option>KYC</option>
 <option>Native App</option>
@@ -102,441 +152,184 @@ line-height:1.5
 <option>Registration</option>
 <option>Login</option>
 <option>Domain Migration</option>
+
 </select>
+
+
 
 
 <label>Scenario</label>
+
 <input id="scenario">
 
 
+
+
 <label>Result</label>
-<select id="result" onchange="toggleFailure()">
+
+<select id="result">
+
 <option>PASS</option>
 <option>FAIL</option>
+
 </select>
+
+
+
 
 
 <div id="failureSection" class="hidden">
 
+
 <label>Failure Type</label>
+
 <select id="failureType">
+
 <option>Known Issue</option>
 <option>New Issue</option>
+
 </select>
 
+
 </div>
+
+
+
 
 
 <label>Device</label>
+
 <input id="device">
 
 
+
+
+
 <label>User Agent</label>
+
 <textarea id="userAgent" readonly></textarea>
 
 
-<label>Network / Carrier</label>
-<input id="networkManual">
 
 
-<label>Detailed Description</label>
+
+<label>Network / Carrier (manual)</label>
+
+<input id="networkManual"
+placeholder="Optional - e.g. Telstra 5G">
+
+
+
+
+<label>Description</label>
+
 <textarea id="description"></textarea>
 
 
+
+
+
 <div id="locationStatus" class="info">
+
 Location not checked
+
 </div>
+
+
+
 
 
 <div class="help">
-<b>Location Accuracy Guide</b><br><br>
 
-🟢 HIGH: 0-20m<br>
-Best GPS accuracy.<br><br>
 
-🟡 ACCEPTABLE: 21-100m<br>
-Suitable for most testing. Common with WiFi positioning.<br><br>
+<b>Location Accuracy Guide</b>
 
-🟠 LOW: 101-500m<br>
-Location returned but reduced precision. Common on desktops without GPS hardware.<br><br>
+<br><br>
 
-🔴 POOR: 500m+<br>
-Likely unreliable location accuracy.
+
+🟢 HIGH<br>
+0-20m<br>
+Best GPS accuracy.
+
+<br><br>
+
+
+🟡 ACCEPTABLE<br>
+21-100m<br>
+Suitable for most testing.
+
+<br><br>
+
+
+🟠 LOW<br>
+101-500m<br>
+Reduced precision.
+
+<br><br>
+
+
+🔴 POOR<br>
+500m+<br>
+Likely unreliable.
+
+<br><br>
+
+
+<b>
+Coordinate country/province detection is an offline estimate and may not always be available.
+</b>
+
 
 </div>
 
 
-<button class="secondary" onclick="refreshLocation()">
+
+
+
+<button class="secondary" id="refreshLocation">
+
 Refresh Location
+
 </button>
 
-<button onclick="generateEmail()">
+
+
+<button id="generateEmail">
+
 Generate Test Email
+
 </button>
 
-<button class="secondary" onclick="copyJSON()">
+
+
+
+<button class="secondary" id="copyJSON">
+
 Copy JSON
+
 </button>
 
-<button class="secondary" onclick="resetForm()">
+
+
+<button class="secondary" id="reset">
+
 Reset Test
+
 </button>
+
 
 
 </div>
-<script>
 
-let latestJSON="";
 
 
-let locationData={
-latitude:null,
-longitude:null,
-accuracy:null,
-capturedAt:null,
-accuracyCheck:null
-};
 
 
-document.getElementById("userAgent").value=navigator.userAgent;
+<script src="geo.js"></script>
 
+<script src="app.js"></script>
 
-
-function refreshLocation(){
-
-document.getElementById("locationStatus").innerHTML =
-"Refreshing GPS...";
-
-
-navigator.geolocation.getCurrentPosition(
-
-p=>{
-
-
-locationData.latitude=p.coords.latitude;
-
-locationData.longitude=p.coords.longitude;
-
-locationData.accuracy=Math.round(p.coords.accuracy);
-
-locationData.capturedAt=new Date().toISOString();
-
-
-
-let accuracy=locationData.accuracy;
-
-let status="";
-let acceptable=false;
-let reason="";
-
-
-if(accuracy<=20){
-
-status="HIGH";
-acceptable=true;
-reason="Excellent GPS accuracy";
-
-}
-
-else if(accuracy<=100){
-
-status="ACCEPTABLE";
-acceptable=true;
-reason="Location precision acceptable for testing";
-
-}
-
-else if(accuracy<=500){
-
-status="LOW";
-acceptable=true;
-reason="Location returned but precision reduced. Common with WiFi positioning or desktop devices";
-
-}
-
-else{
-
-status="POOR";
-acceptable=false;
-reason="Location accuracy is likely unreliable";
-
-}
-
-
-
-locationData.accuracyCheck={
-
-acceptable:acceptable,
-
-status:status,
-
-reason:reason,
-
-thresholds:{
-HIGH:"0-20m",
-ACCEPTABLE:"21-100m",
-LOW:"101-500m",
-POOR:"500m+"
-}
-
-};
-
-
-
-document.getElementById("locationStatus").innerHTML=
-
-`
-Location captured<br><br>
-
-Latitude:
-${locationData.latitude}<br>
-
-Longitude:
-${locationData.longitude}<br>
-
-Accuracy:
-${locationData.accuracy}m<br><br>
-
-Status:
-${locationData.accuracyCheck.status}<br><br>
-
-${locationData.accuracyCheck.reason}<br><br>
-
-${locationData.capturedAt}
-
-`;
-
-},
-
-
-error=>{
-
-document.getElementById("locationStatus").innerHTML =
-"Location failed<br>" + error.message;
-
-},
-
-
-{
-enableHighAccuracy:true,
-timeout:15000,
-maximumAge:0
-}
-
-);
-
-}
-
-
-
-refreshLocation();
-
-
-
-document.addEventListener(
-"visibilitychange",
-()=>{
-
-if(document.visibilityState==="visible"){
-
-refreshLocation();
-
-}
-
-});
-
-
-window.addEventListener(
-"pageshow",
-refreshLocation
-);
-
-
-
-function toggleFailure(){
-
-failureSection.style.display =
-result.value==="FAIL"
-?
-"block"
-:
-"none";
-
-}
-
-
-
-
-function build(){
-
-
-let n=new Date();
-
-
-let id =
-"AB-" +
-n.toISOString()
-.substring(2,10)
-.replaceAll("-","")
-+
-"-" +
-n.toTimeString()
-.substring(0,5)
-.replace(":","")
-+
-"-" +
-Math.random()
-.toString(36)
-.substring(2,5)
-.toUpperCase();
-
-
-
-return {
-
-
-testId:id,
-
-timestamp:n.toISOString(),
-
-tester:tester.value,
-
-testFlow:flow.value,
-
-scenario:scenario.value,
-
-result:result.value,
-
-failureType:
-result.value==="FAIL"
-?
-failureType.value
-:
-null,
-
-
-device:device.value,
-
-
-userAgent:userAgent.value,
-
-
-network:{
-manualCarrier:networkManual.value
-},
-
-
-location:locationData,
-
-
-description:description.value
-
-
-};
-
-
-}
-
-
-
-
-function generateEmail(){
-
-
-let d=build();
-
-
-latestJSON =
-JSON.stringify(d,null,2);
-
-
-
-location.href =
-"mailto:nyoung@itsmanagement.net?subject="
-+
-encodeURIComponent(
-`[TEST][${d.result}][${d.testFlow}] ${d.testId}`
-)
-+
-"&body="
-+
-encodeURIComponent(latestJSON);
-
-
-
-alert(
-"Test ID generated:\n\n" + d.testId
-);
-
-
-}
-
-
-
-
-async function copyJSON(){
-
-
-let d=build();
-
-
-latestJSON =
-JSON.stringify(d,null,2);
-
-
-
-await navigator.clipboard.writeText(latestJSON);
-
-
-
-alert(
-"JSON copied\n\nTest ID:\n" + d.testId
-);
-
-
-}
-
-
-
-
-function resetForm(){
-
-scenario.value="";
-
-description.value="";
-
-networkManual.value="";
-
-result.value="PASS";
-
-toggleFailure();
-
-latestJSON="";
-
-locationData={
-latitude:null,
-longitude:null,
-accuracy:null,
-capturedAt:null,
-accuracyCheck:null
-};
-
-refreshLocation();
-
-}
-
-
-
-
-if("serviceWorker" in navigator){
-
-navigator.serviceWorker.register("sw.js")
-.catch(()=>{});
-
-}
-
-
-</script>
 
 </body>
+
 </html>
