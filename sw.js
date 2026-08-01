@@ -1,69 +1,124 @@
-const CACHE_NAME = "testtrack-v2";
+/*
+ TestTrack Service Worker v3
+*/
+
+
+const CACHE_NAME = "testtrack-v3";
+
 
 const FILES = [
+
 "./",
+
 "./index.html",
+
+"./app.js",
+
+"./geo.js",
+
 "./manifest.json",
+
 "./icon-512.png"
+
 ];
+
+
+
 
 
 self.addEventListener(
 "install",
-event => {
+event=>{
+
 
 event.waitUntil(
 
 caches.open(CACHE_NAME)
-.then(cache => cache.addAll(FILES))
+
+.then(
+cache=>cache.addAll(FILES)
+)
 
 );
 
-}
-);
+
+});
+
+
+
+
 
 
 
 self.addEventListener(
 "activate",
-event => {
+event=>{
+
 
 event.waitUntil(
 
 caches.keys()
-.then(keys =>
+
+.then(
+
+keys=>
+
 
 Promise.all(
 
 keys
-.filter(key => key !== CACHE_NAME)
-.map(key => caches.delete(key))
 
+.filter(
+key=>key!==CACHE_NAME
+)
+
+.map(
+key=>caches.delete(key)
 )
 
 )
 
+
+)
+
+
 );
 
-}
-);
+
+});
+
+
+
+
+
 
 
 
 self.addEventListener(
 "fetch",
-event => {
+event=>{
+
 
 event.respondWith(
 
+
 caches.match(event.request)
-.then(response => {
+
+.then(
+
+response=>{
+
 
 return response || fetch(event.request);
 
-})
-
-);
 
 }
+
+
+)
+
+
 );
+
+
+});
