@@ -184,3 +184,359 @@ Reset Test
 
 
 </div>
+<script>
+
+let latestJSON="";
+
+
+let locationData={
+latitude:null,
+longitude:null,
+accuracy:null,
+capturedAt:null,
+accuracyCheck:null
+};
+
+
+document.getElementById("userAgent").value=navigator.userAgent;
+
+
+
+function refreshLocation(){
+
+document.getElementById("locationStatus").innerHTML =
+"Refreshing GPS...";
+
+
+navigator.geolocation.getCurrentPosition(
+
+p=>{
+
+
+locationData.latitude=p.coords.latitude;
+
+locationData.longitude=p.coords.longitude;
+
+locationData.accuracy=Math.round(p.coords.accuracy);
+
+locationData.capturedAt=new Date().toISOString();
+
+
+
+let accuracy=locationData.accuracy;
+
+let status="";
+let acceptable=false;
+let reason="";
+
+
+if(accuracy<=20){
+
+status="HIGH";
+acceptable=true;
+reason="Excellent GPS accuracy";
+
+}
+
+else if(accuracy<=100){
+
+status="ACCEPTABLE";
+acceptable=true;
+reason="Location precision acceptable for testing";
+
+}
+
+else if(accuracy<=500){
+
+status="LOW";
+acceptable=true;
+reason="Location returned but precision reduced. Common with WiFi positioning or desktop devices";
+
+}
+
+else{
+
+status="POOR";
+acceptable=false;
+reason="Location accuracy is likely unreliable";
+
+}
+
+
+
+locationData.accuracyCheck={
+
+acceptable:acceptable,
+
+status:status,
+
+reason:reason,
+
+thresholds:{
+HIGH:"0-20m",
+ACCEPTABLE:"21-100m",
+LOW:"101-500m",
+POOR:"500m+"
+}
+
+};
+
+
+
+document.getElementById("locationStatus").innerHTML=
+
+`
+Location captured<br><br>
+
+Latitude:
+${locationData.latitude}<br>
+
+Longitude:
+${locationData.longitude}<br>
+
+Accuracy:
+${locationData.accuracy}m<br><br>
+
+Status:
+${locationData.accuracyCheck.status}<br><br>
+
+${locationData.accuracyCheck.reason}<br><br>
+
+${locationData.capturedAt}
+
+`;
+
+},
+
+
+error=>{
+
+document.getElementById("locationStatus").innerHTML =
+"Location failed<br>" + error.message;
+
+},
+
+
+{
+enableHighAccuracy:true,
+timeout:15000,
+maximumAge:0
+}
+
+);
+
+}
+
+
+
+refreshLocation();
+
+
+
+document.addEventListener(
+"visibilitychange",
+()=>{
+
+if(document.visibilityState==="visible"){
+
+refreshLocation();
+
+}
+
+});
+
+
+window.addEventListener(
+"pageshow",
+refreshLocation
+);
+
+
+
+function toggleFailure(){
+
+failureSection.style.display =
+result.value==="FAIL"
+?
+"block"
+:
+"none";
+
+}
+
+
+
+
+function build(){
+
+
+let n=new Date();
+
+
+let id =
+"AB-" +
+n.toISOString()
+.substring(2,10)
+.replaceAll("-","")
++
+"-" +
+n.toTimeString()
+.substring(0,5)
+.replace(":","")
++
+"-" +
+Math.random()
+.toString(36)
+.substring(2,5)
+.toUpperCase();
+
+
+
+return {
+
+
+testId:id,
+
+timestamp:n.toISOString(),
+
+tester:tester.value,
+
+testFlow:flow.value,
+
+scenario:scenario.value,
+
+result:result.value,
+
+failureType:
+result.value==="FAIL"
+?
+failureType.value
+:
+null,
+
+
+device:device.value,
+
+
+userAgent:userAgent.value,
+
+
+network:{
+manualCarrier:networkManual.value
+},
+
+
+location:locationData,
+
+
+description:description.value
+
+
+};
+
+
+}
+
+
+
+
+function generateEmail(){
+
+
+let d=build();
+
+
+latestJSON =
+JSON.stringify(d,null,2);
+
+
+
+location.href =
+"mailto:nyoung@itsmanagement.net?subject="
++
+encodeURIComponent(
+`[TEST][${d.result}][${d.testFlow}] ${d.testId}`
+)
++
+"&body="
++
+encodeURIComponent(latestJSON);
+
+
+
+alert(
+"Test ID generated:\n\n" + d.testId
+);
+
+
+}
+
+
+
+
+async function copyJSON(){
+
+
+let d=build();
+
+
+latestJSON =
+JSON.stringify(d,null,2);
+
+
+
+await navigator.clipboard.writeText(latestJSON);
+
+
+
+alert(
+"JSON copied\n\nTest ID:\n" + d.testId
+);
+
+
+}
+
+
+
+
+function resetForm(){
+
+scenario.value="";
+
+description.value="";
+
+networkManual.value="";
+
+result.value="PASS";
+
+toggleFailure();
+
+latestJSON="";
+
+locationData={
+latitude:null,
+longitude:null,
+accuracy:null,
+capturedAt:null,
+accuracyCheck:null
+};
+
+refreshLocation();
+
+}
+
+
+
+
+if("serviceWorker" in navigator){
+
+navigator.serviceWorker.register("sw.js")
+.catch(()=>{});
+
+}
+
+
+</script>
+
+</body>
+</html>
