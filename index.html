@@ -3,49 +3,42 @@
 
 <head>
 
-<title>Alberta Market Test Logger</title>
+<title>Market Test Logger</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 
 body {
-
     font-family: Arial, sans-serif;
     background:#062f1c;
     color:white;
     padding:20px;
-
 }
 
 .container {
-
     max-width:600px;
     margin:auto;
     background:#0b472c;
     padding:25px;
     border-radius:12px;
-
 }
 
 h2 {
-
     text-align:center;
     color:#7dffb3;
-
 }
 
 label {
-
-    font-weight:bold;
     display:block;
+    font-weight:bold;
     margin-top:15px;
-
 }
 
 input, select, textarea, button {
 
     width:100%;
+    box-sizing:border-box;
     padding:12px;
     margin-top:6px;
     border-radius:8px;
@@ -54,13 +47,9 @@ input, select, textarea, button {
 
 }
 
-
 textarea {
-
-    height:140px;
-
+    height:120px;
 }
-
 
 button {
 
@@ -68,34 +57,25 @@ button {
     background:#19a463;
     color:white;
     font-weight:bold;
-    cursor:pointer;
 
 }
-
 
 button:hover {
-
     background:#22c77a;
-
 }
-
 
 .hidden {
-
     display:none;
-
 }
-
 
 .info {
 
     margin-top:20px;
-    padding:10px;
+    padding:12px;
     background:#083820;
     border-radius:8px;
 
 }
-
 
 </style>
 
@@ -109,6 +89,7 @@ button:hover {
 
 
 <h2>Market Test Logger</h2>
+
 
 
 <label>Tester</label>
@@ -143,14 +124,15 @@ button:hover {
 
 <label>Scenario</label>
 
-<input id="scenario"
-placeholder="Example: Login after moving from WiFi to LTE">
+<input 
+id="scenario"
+placeholder="Example: Login after switching WiFi to LTE">
 
 
 
 <label>Result</label>
 
-<select id="result" onchange="toggleFail()">
+<select id="result" onchange="toggleFailure()">
 
 <option>PASS</option>
 <option>FAIL</option>
@@ -159,7 +141,7 @@ placeholder="Example: Login after moving from WiFi to LTE">
 
 
 
-<div id="failureBox" class="hidden">
+<div id="failureSection" class="hidden">
 
 
 <label>Failure Type</label>
@@ -179,37 +161,43 @@ placeholder="Example: Login after moving from WiFi to LTE">
 
 <label>Device</label>
 
-<input id="device"
-placeholder="Example: iPhone 17 Pro">
+<input
+id="device"
+placeholder="Example: Nick iPhone 17 Pro">
 
 
 
-<label>Operating System</label>
+<label>User Agent</label>
 
-<input id="os"
-placeholder="Example: iOS 27">
+<textarea 
+id="userAgent"
+readonly>
+</textarea>
 
 
 
-<label>Browser</label>
+<label>Network / Carrier</label>
 
-<input id="browser"
-placeholder="Auto detected">
+<input
+id="networkManual"
+placeholder="Optional: Telus / Rogers / WiFi">
 
 
 
 <label>Detailed Description</label>
 
-<textarea id="description"
-placeholder="Detailed steps, expected result, actual result"></textarea>
+<textarea
+id="description"
+placeholder="Steps, expected result, actual result"></textarea>
 
 
 
-<div id="status" class="info">
+<div id="locationStatus" class="info">
 
-Location detecting...
+Detecting location...
 
 </div>
+
 
 
 <button onclick="generateEmail()">
@@ -219,8 +207,8 @@ Generate Test Email
 </button>
 
 
-
 </div>
+
 
 
 
@@ -231,35 +219,33 @@ Generate Test Email
 
 let locationData = {
 
-latitude:null,
-longitude:null,
-accuracy:null
+    latitude:null,
+    longitude:null,
+    accuracy:null
 
 };
 
 
 
-let lastJSON = "";
+let connectionData = {
+
+    type:"Unknown",
+    effectiveType:"Unknown"
+
+};
 
 
 
-// Browser information
+// Populate user agent
 
-document.getElementById("browser").value =
+document.getElementById("userAgent").value =
 navigator.userAgent;
 
 
 
 
-// OS guess
 
-document.getElementById("os").value =
-navigator.platform;
-
-
-
-
-// Network information if available
+// Capture available network information
 
 let connection =
 navigator.connection ||
@@ -267,22 +253,25 @@ navigator.mozConnection ||
 navigator.webkitConnection;
 
 
+if(connection){
 
-let networkInfo = {
+    connectionData.type =
+    connection.type || "Unknown";
 
-type:
-connection?.type || "Unknown",
+    connectionData.effectiveType =
+    connection.effectiveType || "Unknown";
 
-effectiveType:
-connection?.effectiveType || "Unknown"
-
-};
-
+}
 
 
 
 
-// Location
+
+
+// Get GPS
+
+if(navigator.geolocation){
+
 
 navigator.geolocation.getCurrentPosition(
 
@@ -302,18 +291,19 @@ position.coords.accuracy;
 
 
 
-document.getElementById("status").innerHTML =
+document.getElementById("locationStatus").innerHTML =
 
 "Location captured<br>" +
 
-"Lat: " +
+"Latitude: " +
 locationData.latitude +
 
-"<br>Long: " +
+"<br>Longitude: " +
 locationData.longitude +
 
 "<br>Accuracy: " +
-locationData.accuracy +
+Math.round(locationData.accuracy)
++
 "m";
 
 
@@ -323,10 +313,9 @@ locationData.accuracy +
 function(error){
 
 
-document.getElementById("status").innerHTML =
+document.getElementById("locationStatus").innerHTML =
 
-"Location unavailable: " +
-error.message;
+"Location unavailable";
 
 
 },
@@ -343,18 +332,21 @@ timeout:10000
 );
 
 
+}
 
 
 
 
-function toggleFail(){
+
+
+function toggleFailure(){
 
 
 let result =
 document.getElementById("result").value;
 
 
-document.getElementById("failureBox").style.display =
+document.getElementById("failureSection").style.display =
 
 result === "FAIL"
 ?
@@ -370,7 +362,7 @@ result === "FAIL"
 
 
 
-async function generateEmail(){
+function generateEmail(){
 
 
 
@@ -378,12 +370,28 @@ let now = new Date();
 
 
 
-let shortRandom =
-Math.floor(
-Math.random()*999
-)
-.toString()
-.padStart(3,"0");
+let datePart =
+
+now.toISOString()
+.substring(2,10)
+.replaceAll("-","");
+
+
+
+let timePart =
+
+now.toTimeString()
+.substring(0,5)
+.replace(":","");
+
+
+
+let randomPart =
+
+Math.random()
+.toString(36)
+.substring(2,5)
+.toUpperCase();
 
 
 
@@ -391,17 +399,22 @@ let testId =
 
 "AB-" +
 
-now.toISOString()
-.substring(2,16)
-.replace(/[-T:]/g,"")
-
-+
+datePart +
 
 "-" +
 
-shortRandom;
+timePart +
+
+"-" +
+
+randomPart;
 
 
+
+
+
+let result =
+document.getElementById("result").value;
 
 
 
@@ -427,30 +440,48 @@ scenario:
 document.getElementById("scenario").value,
 
 
-result:
-document.getElementById("result").value,
+result:result,
+
 
 
 failureType:
-document.getElementById("failureType").value || null,
+
+result === "FAIL"
+
+?
+
+document.getElementById("failureType").value
+
+:
+
+null,
+
 
 
 device:
 document.getElementById("device").value,
 
 
-os:
-document.getElementById("os").value,
+
+userAgent:
+document.getElementById("userAgent").value,
 
 
-browser:
-document.getElementById("browser").value,
 
+network:{
 
-network:networkInfo,
+browserDetected:
+connectionData,
+
+manual:
+document.getElementById("networkManual").value
+
+},
+
 
 
 location:locationData,
+
 
 
 description:
@@ -462,8 +493,10 @@ document.getElementById("description").value
 
 
 
-lastJSON =
+
+let json =
 JSON.stringify(data,null,2);
+
 
 
 
@@ -472,7 +505,7 @@ let subject =
 
 "[TEST][" +
 
-data.result +
+result +
 
 "][" +
 
@@ -504,7 +537,7 @@ encodeURIComponent(subject)
 
 +
 
-encodeURIComponent(lastJSON);
+encodeURIComponent(json);
 
 
 
