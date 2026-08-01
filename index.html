@@ -3,11 +3,9 @@
 <head>
 <meta charset="utf-8">
 <title>TestTrack</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link rel="manifest" href="manifest.json">
-
 <meta name="theme-color" content="#062f1c">
 
 <style>
@@ -67,8 +65,16 @@ padding:12px;
 background:#083820;
 border-radius:8px
 }
-</style>
 
+.help{
+margin-top:15px;
+padding:12px;
+background:#062b19;
+border-radius:8px;
+font-size:14px;
+line-height:1.5
+}
+</style>
 </head>
 
 <body>
@@ -76,7 +82,6 @@ border-radius:8px
 <div class="container">
 
 <h2>TestTrack</h2>
-
 
 <label>Tester</label>
 <select id="tester">
@@ -143,20 +148,35 @@ Location not checked
 </div>
 
 
+<div class="help">
+<b>Location Accuracy Guide</b><br><br>
+
+🟢 HIGH: 0-20m<br>
+Best GPS accuracy.<br><br>
+
+🟡 ACCEPTABLE: 21-100m<br>
+Suitable for most testing. Common with WiFi positioning.<br><br>
+
+🟠 LOW: 101-500m<br>
+Location returned but reduced precision. Common on desktops without GPS hardware.<br><br>
+
+🔴 POOR: 500m+<br>
+Likely unreliable location accuracy.
+
+</div>
+
+
 <button class="secondary" onclick="refreshLocation()">
 Refresh Location
 </button>
-
 
 <button onclick="generateEmail()">
 Generate Test Email
 </button>
 
-
 <button class="secondary" onclick="copyJSON()">
 Copy JSON
 </button>
-
 
 <button class="secondary" onclick="resetForm()">
 Reset Test
@@ -164,311 +184,3 @@ Reset Test
 
 
 </div>
-
-
-<script>
-
-let latestJSON="";
-
-
-let locationData={
-latitude:null,
-longitude:null,
-accuracy:null,
-capturedAt:null,
-accuracyCheck:null
-};
-
-
-document.getElementById("userAgent").value=navigator.userAgent;
-
-
-
-function refreshLocation(){
-
-document.getElementById("locationStatus").innerHTML=
-"Refreshing GPS...";
-
-
-navigator.geolocation.getCurrentPosition(
-
-p=>{
-
-
-locationData.latitude=p.coords.latitude;
-
-locationData.longitude=p.coords.longitude;
-
-locationData.accuracy=p.coords.accuracy;
-
-locationData.capturedAt=new Date().toISOString();
-
-
-
-let acceptable =
-locationData.accuracy <= 20;
-
-
-
-locationData.accuracyCheck={
-
-acceptable:acceptable,
-
-status:
-acceptable ?
-"ACCEPTABLE" :
-"NOT_ACCEPTABLE",
-
-threshold:
-"20m",
-
-reason:
-acceptable ?
-"GPS accuracy within expected range" :
-"GPS accuracy exceeded expected range"
-
-};
-
-
-
-document.getElementById("locationStatus").innerHTML=`
-
-Location captured<br><br>
-
-Latitude:
-${locationData.latitude}<br>
-
-Longitude:
-${locationData.longitude}<br>
-
-Accuracy:
-${Math.round(locationData.accuracy)}m
-
-<br><br>
-
-${locationData.accuracyCheck.status}
-
-<br><br>
-
-${locationData.accuracyCheck.reason}
-
-<br><br>
-
-${locationData.capturedAt}
-
-`;
-
-},
-
-
-e=>{
-
-document.getElementById("locationStatus").innerHTML=
-"Location failed<br>"+e.message;
-
-},
-
-
-{
-enableHighAccuracy:true,
-timeout:15000,
-maximumAge:0
-}
-
-);
-
-}
-
-
-
-refreshLocation();
-
-
-
-document.addEventListener(
-"visibilitychange",
-()=>{
-if(document.visibilityState==="visible")
-refreshLocation();
-});
-
-
-window.addEventListener(
-"pageshow",
-refreshLocation
-);
-
-
-
-function toggleFailure(){
-
-failureSection.style.display =
-result.value==="FAIL"
-?
-"block"
-:
-"none";
-
-}
-
-
-
-
-function build(){
-
-
-let n=new Date();
-
-
-let id=
-"AB-"+
-n.toISOString()
-.substring(2,10)
-.replaceAll("-","")
-+
-"-"+
-n.toTimeString()
-.substring(0,5)
-.replace(":","")
-+
-"-"+
-Math.random()
-.toString(36)
-.substring(2,5)
-.toUpperCase();
-
-
-
-return {
-
-
-testId:id,
-
-timestamp:n.toISOString(),
-
-tester:tester.value,
-
-testFlow:flow.value,
-
-scenario:scenario.value,
-
-result:result.value,
-
-failureType:
-result.value==="FAIL"
-?
-failureType.value
-:
-null,
-
-
-device:device.value,
-
-
-userAgent:userAgent.value,
-
-
-network:{
-manualCarrier:networkManual.value
-},
-
-
-location:locationData,
-
-
-description:description.value
-
-
-};
-
-
-}
-
-
-
-
-function generateEmail(){
-
-let d=build();
-
-latestJSON=
-JSON.stringify(d,null,2);
-
-
-location.href=
-"mailto:nyoung@itsmanagement.net?subject="
-+
-encodeURIComponent(
-`[TEST][${d.result}][${d.testFlow}] ${d.testId}`
-)
-+
-"&body="
-+
-encodeURIComponent(latestJSON);
-
-
-alert(
-"Test ID: "+d.testId
-);
-
-
-}
-
-
-
-
-async function copyJSON(){
-
-
-if(!latestJSON){
-
-latestJSON=
-JSON.stringify(build(),null,2);
-
-}
-
-
-await navigator.clipboard.writeText(latestJSON);
-
-
-alert("JSON copied");
-
-
-}
-
-
-
-
-function resetForm(){
-
-scenario.value="";
-
-description.value="";
-
-networkManual.value="";
-
-result.value="PASS";
-
-toggleFailure();
-
-latestJSON="";
-
-refreshLocation();
-
-}
-
-
-
-if("serviceWorker" in navigator){
-
-navigator.serviceWorker.register("sw.js")
-.catch(()=>{});
-
-}
-
-
-</script>
-
-
-</body>
-</html>
