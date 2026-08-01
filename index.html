@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
 <meta charset="utf-8">
+
 <title>TestTrack</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,7 +23,6 @@ color:#fff;
 padding:20px
 }
 
-
 .container{
 max-width:600px;
 margin:auto;
@@ -30,16 +31,13 @@ padding:25px;
 border-radius:12px
 }
 
-
 label{
 display:block;
 font-weight:bold;
 margin-top:15px
 }
 
-
 input,select,textarea,button{
-
 width:100%;
 box-sizing:border-box;
 padding:12px;
@@ -47,73 +45,46 @@ margin-top:6px;
 border-radius:8px;
 border:none;
 font-size:16px
-
 }
-
 
 textarea{
 height:120px
 }
 
-
 button{
-
 margin-top:15px;
 background:#19a463;
 color:#fff;
-font-weight:bold;
-cursor:pointer
-
+font-weight:bold
 }
-
 
 .secondary{
 background:#125936
 }
 
-
 .hidden{
 display:none
 }
 
-
 .info{
-
 margin-top:20px;
 padding:12px;
 background:#083820;
 border-radius:8px
-
 }
 
-
 .help{
-
 margin-top:15px;
 padding:12px;
 background:#062b19;
 border-radius:8px;
 font-size:14px;
 line-height:1.5
-
 }
-
-
-.badge{
-
-padding:6px;
-border-radius:6px;
-display:inline-block;
-margin-top:5px;
-font-weight:bold;
-
-}
-
 
 </style>
 
 </head>
-
 
 
 <body>
@@ -123,7 +94,6 @@ font-weight:bold;
 
 
 <h2>TestTrack</h2>
-
 
 
 <label>Tester</label>
@@ -177,7 +147,6 @@ font-weight:bold;
 
 
 
-
 <div id="failureSection" class="hidden">
 
 
@@ -196,11 +165,9 @@ font-weight:bold;
 
 
 
-
 <label>Device</label>
 
 <input id="device">
-
 
 
 
@@ -212,11 +179,10 @@ font-weight:bold;
 
 
 
-
 <label>Network / Carrier (manual)</label>
 
-<input id="networkManual"
-placeholder="Optional - e.g. Telstra 5G">
+<input id="networkManual">
+
 
 
 
@@ -241,44 +207,42 @@ Location not checked
 
 <div class="help">
 
-
 <b>Location Accuracy Guide</b>
 
 <br><br>
 
+🟢 HIGH: 0-20m
 
-🟢 HIGH<br>
-0-20m<br>
+<br>
+
 Best GPS accuracy.
 
 <br><br>
 
 
-🟡 ACCEPTABLE<br>
-21-100m<br>
+🟡 ACCEPTABLE: 21-100m
+
+<br>
+
 Suitable for most testing.
 
 <br><br>
 
 
-🟠 LOW<br>
-101-500m<br>
+🟠 LOW: 101-500m
+
+<br>
+
 Reduced precision.
 
 <br><br>
 
 
-🔴 POOR<br>
-500m+<br>
+🔴 POOR: 500m+
+
+<br>
+
 Likely unreliable.
-
-<br><br>
-
-
-<b>
-Coordinate country/province detection is an offline estimate and may not always be available.
-</b>
-
 
 </div>
 
@@ -308,6 +272,7 @@ Generate Test Email
 Copy JSON
 
 </button>
+
 
 
 
