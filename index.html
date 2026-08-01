@@ -1,73 +1,101 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>Alberta Geo Test Logger</title>
+
+<title>Alberta Market Test Logger</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 
 body {
+
     font-family: Arial, sans-serif;
-    padding: 20px;
-    background: #f5f5f5;
+    background:#062f1c;
+    color:white;
+    padding:20px;
+
 }
 
 .container {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
+
+    max-width:600px;
+    margin:auto;
+    background:#0b472c;
+    padding:25px;
+    border-radius:12px;
+
 }
 
 h2 {
-    text-align: center;
+
+    text-align:center;
+    color:#7dffb3;
+
 }
 
 label {
-    font-weight: bold;
-    display: block;
-    margin-top: 15px;
+
+    font-weight:bold;
+    display:block;
+    margin-top:15px;
+
 }
 
 input, select, textarea, button {
 
-    width: 100%;
-    padding: 12px;
-    margin-top: 6px;
-    font-size: 16px;
-    box-sizing: border-box;
+    width:100%;
+    padding:12px;
+    margin-top:6px;
+    border-radius:8px;
+    border:none;
+    font-size:16px;
 
 }
+
 
 textarea {
-    height: 120px;
+
+    height:140px;
+
 }
+
 
 button {
 
-    background: #222;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    margin-top: 20px;
+    margin-top:25px;
+    background:#19a463;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
 
 }
 
-.secondary {
 
-    background: #666;
+button:hover {
+
+    background:#22c77a;
 
 }
 
-#testIdDisplay {
 
-    margin-top:20px;
-    padding:10px;
-    background:#eee;
-    border-radius:5px;
+.hidden {
+
     display:none;
 
 }
+
+
+.info {
+
+    margin-top:20px;
+    padding:10px;
+    background:#083820;
+    border-radius:8px;
+
+}
+
 
 </style>
 
@@ -80,114 +108,116 @@ button {
 <div class="container">
 
 
-<h2>Alberta Geo Test Logger</h2>
+<h2>Market Test Logger</h2>
 
 
 <label>Tester</label>
+
 <select id="tester">
+
 <option>Nick</option>
 <option>Josh</option>
+
 </select>
 
 
-<label>Test Suite</label>
-<select id="suite">
 
+<label>Test Flow</label>
+
+<select id="flow">
+
+<option>Geolocation</option>
+<option>KYC</option>
+<option>Native App</option>
+<option>Banking</option>
+<option>Games</option>
+<option>Responsible Gaming</option>
+<option>ITS Pages</option>
 <option>Registration</option>
 <option>Login</option>
-<option>Geolocation</option>
-<option>Deposit</option>
-<option>Withdrawal</option>
-<option>Game Launch</option>
-<option>Responsible Gambling</option>
-<option>Other</option>
+<option>Domain Migration</option>
 
 </select>
+
 
 
 <label>Scenario</label>
 
-<input 
-id="scenario"
-placeholder="Example: Login after switching WiFi to LTE">
+<input id="scenario"
+placeholder="Example: Login after moving from WiFi to LTE">
+
 
 
 <label>Result</label>
 
-<select id="result">
+<select id="result" onchange="toggleFail()">
 
 <option>PASS</option>
 <option>FAIL</option>
-<option>BLOCKED</option>
 
 </select>
+
+
+
+<div id="failureBox" class="hidden">
+
+
+<label>Failure Type</label>
+
+<select id="failureType">
+
+<option>Known Issue</option>
+<option>New Issue</option>
+
+</select>
+
+
+</div>
+
 
 
 
 <label>Device</label>
 
-<input 
-id="device"
+<input id="device"
 placeholder="Example: iPhone 17 Pro">
 
 
 
 <label>Operating System</label>
 
-<input
-id="os"
+<input id="os"
 placeholder="Example: iOS 27">
 
 
 
-<label>Carrier / Network</label>
+<label>Browser</label>
 
-<select id="carrier">
-
-<option>Telus</option>
-<option>Rogers</option>
-<option>Bell</option>
-<option>WiFi</option>
-<option>Other</option>
-
-</select>
+<input id="browser"
+placeholder="Auto detected">
 
 
 
-<label>Build Version</label>
+<label>Detailed Description</label>
 
-<input
-id="build"
-placeholder="Example: 4.2.0">
-
-
-
-<label>Notes</label>
-
-<textarea
-id="notes"
-placeholder="Describe what happened"></textarea>
+<textarea id="description"
+placeholder="Detailed steps, expected result, actual result"></textarea>
 
 
 
-<div id="testIdDisplay"></div>
+<div id="status" class="info">
+
+Location detecting...
+
+</div>
 
 
-
-<button onclick="generateTest()">
+<button onclick="generateEmail()">
 
 Generate Test Email
 
 </button>
 
-
-<button 
-class="secondary"
-onclick="copyLastTest()">
-
-Copy Last JSON
-
-</button>
 
 
 </div>
@@ -199,38 +229,92 @@ Copy Last JSON
 <script>
 
 
-let lastJSON = "";
+let locationData = {
 
-let currentLocation = {
-
-    latitude:null,
-    longitude:null,
-    accuracy:null
+latitude:null,
+longitude:null,
+accuracy:null
 
 };
 
 
 
-// Request GPS when page loads
+let lastJSON = "";
 
-if (navigator.geolocation) {
 
+
+// Browser information
+
+document.getElementById("browser").value =
+navigator.userAgent;
+
+
+
+
+// OS guess
+
+document.getElementById("os").value =
+navigator.platform;
+
+
+
+
+// Network information if available
+
+let connection =
+navigator.connection ||
+navigator.mozConnection ||
+navigator.webkitConnection;
+
+
+
+let networkInfo = {
+
+type:
+connection?.type || "Unknown",
+
+effectiveType:
+connection?.effectiveType || "Unknown"
+
+};
+
+
+
+
+
+// Location
 
 navigator.geolocation.getCurrentPosition(
 
 function(position){
 
 
-currentLocation.latitude =
+locationData.latitude =
 position.coords.latitude;
 
 
-currentLocation.longitude =
+locationData.longitude =
 position.coords.longitude;
 
 
-currentLocation.accuracy =
+locationData.accuracy =
 position.coords.accuracy;
+
+
+
+document.getElementById("status").innerHTML =
+
+"Location captured<br>" +
+
+"Lat: " +
+locationData.latitude +
+
+"<br>Long: " +
+locationData.longitude +
+
+"<br>Accuracy: " +
+locationData.accuracy +
+"m";
 
 
 },
@@ -238,32 +322,68 @@ position.coords.accuracy;
 
 function(error){
 
-console.log(
-"GPS unavailable",
-error
-);
+
+document.getElementById("status").innerHTML =
+
+"Location unavailable: " +
+error.message;
+
 
 },
 
+
 {
+
 enableHighAccuracy:true,
 timeout:10000
+
 }
 
 
 );
 
 
+
+
+
+
+function toggleFail(){
+
+
+let result =
+document.getElementById("result").value;
+
+
+document.getElementById("failureBox").style.display =
+
+result === "FAIL"
+?
+"block"
+:
+"none";
+
+
 }
 
 
 
 
-async function generateTest(){
+
+
+async function generateEmail(){
 
 
 
 let now = new Date();
+
+
+
+let shortRandom =
+Math.floor(
+Math.random()*999
+)
+.toString()
+.padStart(3,"0");
 
 
 
@@ -272,10 +392,16 @@ let testId =
 "AB-" +
 
 now.toISOString()
+.substring(2,16)
+.replace(/[-T:]/g,"")
 
-.replace(/[-:TZ.]/g,"")
++
 
-.substring(0,14);
+"-" +
+
+shortRandom;
+
+
 
 
 
@@ -293,8 +419,8 @@ tester:
 document.getElementById("tester").value,
 
 
-suite:
-document.getElementById("suite").value,
+testFlow:
+document.getElementById("flow").value,
 
 
 scenario:
@@ -305,6 +431,10 @@ result:
 document.getElementById("result").value,
 
 
+failureType:
+document.getElementById("failureType").value || null,
+
+
 device:
 document.getElementById("device").value,
 
@@ -313,33 +443,22 @@ os:
 document.getElementById("os").value,
 
 
-carrier:
-document.getElementById("carrier").value,
+browser:
+document.getElementById("browser").value,
 
 
-build:
-document.getElementById("build").value,
+network:networkInfo,
 
 
-location:{
-
-latitude:
-currentLocation.latitude,
-
-longitude:
-currentLocation.longitude,
-
-accuracy:
-currentLocation.accuracy
-
-},
+location:locationData,
 
 
-notes:
-document.getElementById("notes").value
+description:
+document.getElementById("description").value
 
 
 };
+
 
 
 
@@ -348,26 +467,16 @@ JSON.stringify(data,null,2);
 
 
 
-document.getElementById("testIdDisplay").style.display="block";
-
-
-document.getElementById("testIdDisplay").innerHTML =
-
-"<b>Test ID:</b><br>" + testId +
-
-"<br><br>Use this ID for screenshots/videos.";
-
-
 
 let subject =
 
-"[GEO][" +
+"[TEST][" +
 
 data.result +
 
 "][" +
 
-data.suite +
+data.testFlow +
 
 "] " +
 
@@ -375,109 +484,34 @@ testId;
 
 
 
-// Mobile share menu
-
-if (navigator.share){
 
 
-try {
+let mailURL =
 
+"mailto:nyoung@itsmanagement.net"
 
-await navigator.share({
++
 
-title:subject,
+"?subject="
 
-text:lastJSON
++
 
-});
+encodeURIComponent(subject)
 
++
 
-return;
+"&body="
 
++
 
-}
-
-catch(error){
-
-console.log(
-"Share cancelled"
-);
-
-}
-
-
-}
-
-
-
-// Clipboard fallback
-
-
-try {
-
-
-await navigator.clipboard.writeText(lastJSON);
-
-
-alert(
-
-"JSON copied to clipboard.\n\n" +
-
-"Create your email and paste it."
-
-);
-
-
-}
-
-catch(error){
-
-
-alert(lastJSON);
-
-
-}
-
-
-
-}
+encodeURIComponent(lastJSON);
 
 
 
 
 
-async function copyLastTest(){
+window.location.href = mailURL;
 
-
-if (!lastJSON){
-
-alert(
-"No test generated yet."
-);
-
-return;
-
-}
-
-
-try {
-
-
-await navigator.clipboard.writeText(lastJSON);
-
-
-alert(
-"JSON copied."
-);
-
-
-}
-
-catch(error){
-
-alert(lastJSON);
-
-}
 
 
 }
