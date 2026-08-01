@@ -1,298 +1,214 @@
 /*
- TestTrack geo.js v3
+ TestTrack geo.js
 
- Offline coordinate location estimation.
-
+ Offline coordinate estimation.
  No API calls.
- No external dependencies.
-
- Supports:
- - Australia states
- - Canada provinces
- - UK regions
-
- Returns confidence rating.
+ Conservative results only.
 */
 
 
-function estimateCoordinateLocation(lat, lon){
+function estimateCoordinateLocation(latitude, longitude) {
 
 
-if(
-typeof lat !== "number" ||
-typeof lon !== "number"
-){
+    if (
+        typeof latitude !== "number" ||
+        typeof longitude !== "number"
+    ) {
 
-return {
+        return {
 
-country:"unknown",
-province:"unknown",
-method:"offline-boundary-estimate",
-confidence:"low"
+            country: "unknown",
+            province: "unknown",
+            method: "offline-estimate",
+            confidence: "low"
 
-};
+        };
 
-}
+    }
 
 
 
+    /*
+    =========================
+    AUSTRALIA
+    =========================
+    */
 
 
-/*
- ==========================
- AUSTRALIA
- ==========================
-*/
+    // New South Wales
+    if (
+        latitude >= -37.8 &&
+        latitude <= -28.0 &&
+        longitude >= 140.5 &&
+        longitude <= 154.5
+    ) {
 
+        return {
 
-// NSW
-if(
-lat >= -37.7 &&
-lat <= -28 &&
-lon >= 140.9 &&
-lon <= 154
-){
+            country: "Australia",
+            province: "New South Wales",
+            method: "offline-estimate",
+            confidence: "medium"
 
-return {
+        };
 
-country:"Australia",
-province:"New South Wales",
-method:"offline-boundary-estimate",
-confidence:"medium"
+    }
 
-};
 
-}
 
+    // Victoria
+    if (
+        latitude >= -39.2 &&
+        latitude <= -34.0 &&
+        longitude >= 140.5 &&
+        longitude <= 150.0
+    ) {
 
+        return {
 
-// Victoria
-if(
-lat >= -39.2 &&
-lat <= -34 &&
-lon >= 140.5 &&
-lon <= 150
-){
+            country: "Australia",
+            province: "Victoria",
+            method: "offline-estimate",
+            confidence: "medium"
 
-return {
+        };
 
-country:"Australia",
-province:"Victoria",
-method:"offline-boundary-estimate",
-confidence:"medium"
+    }
 
-};
 
-}
 
+    // Queensland
+    if (
+        latitude >= -29.5 &&
+        latitude <= -10.0 &&
+        longitude >= 137.0 &&
+        longitude <= 154.5
+    ) {
 
+        return {
 
-// Queensland
-if(
-lat >= -29.3 &&
-lat <= -10 &&
-lon >= 137 &&
-lon <= 154
-){
+            country: "Australia",
+            province: "Queensland",
+            method: "offline-estimate",
+            confidence: "medium"
 
-return {
+        };
 
-country:"Australia",
-province:"Queensland",
-method:"offline-boundary-estimate",
-confidence:"medium"
+    }
 
-};
 
-}
 
 
 
-// Western Australia
-if(
-lat >= -35 &&
-lat <= -13 &&
-lon >= 112 &&
-lon <= 129
-){
+    /*
+    =========================
+    CANADA
+    =========================
+    */
 
-return {
 
-country:"Australia",
-province:"Western Australia",
-method:"offline-boundary-estimate",
-confidence:"medium"
+    // Alberta
+    if (
+        latitude >= 49.0 &&
+        latitude <= 60.0 &&
+        longitude >= -120.0 &&
+        longitude <= -110.0
+    ) {
 
-};
+        return {
 
-}
+            country: "Canada",
+            province: "Alberta",
+            method: "offline-estimate",
+            confidence: "medium"
 
+        };
 
+    }
 
-// South Australia
-if(
-lat >= -39 &&
-lat <= -25 &&
-lon >= 129 &&
-lon <= 141
-){
 
-return {
 
-country:"Australia",
-province:"South Australia",
-method:"offline-boundary-estimate",
-confidence:"medium"
+    // British Columbia
+    if (
+        latitude >= 48.0 &&
+        latitude <= 60.0 &&
+        longitude >= -139.0 &&
+        longitude <= -114.0
+    ) {
 
-};
+        return {
 
-}
+            country: "Canada",
+            province: "British Columbia",
+            method: "offline-estimate",
+            confidence: "medium"
 
+        };
 
+    }
 
 
 
-/*
- ==========================
- CANADA
- ==========================
-*/
+    // Ontario
+    if (
+        latitude >= 41.0 &&
+        latitude <= 57.0 &&
+        longitude >= -95.0 &&
+        longitude <= -74.0
+    ) {
 
+        return {
 
-// Alberta
-if(
-lat >= 49 &&
-lat <= 60 &&
-lon >= -120 &&
-lon <= -110
-){
+            country: "Canada",
+            province: "Ontario",
+            method: "offline-estimate",
+            confidence: "medium"
 
-return {
+        };
 
-country:"Canada",
-province:"Alberta",
-method:"offline-boundary-estimate",
-confidence:"medium"
+    }
 
-};
 
-}
 
 
 
+    /*
+    =========================
+    UNITED KINGDOM
+    =========================
+    */
 
-// British Columbia
-if(
-lat >= 48 &&
-lat <= 60 &&
-lon >= -139 &&
-lon <= -114
-){
 
-return {
+    if (
+        latitude >= 49.5 &&
+        latitude <= 59.5 &&
+        longitude >= -8.5 &&
+        longitude <= 2.0
+    ) {
 
-country:"Canada",
-province:"British Columbia",
-method:"offline-boundary-estimate",
-confidence:"medium"
+        return {
 
-};
+            country: "United Kingdom",
+            province: "Region unavailable",
+            method: "offline-estimate",
+            confidence: "low"
 
-}
+        };
 
+    }
 
 
 
 
-// Ontario
-if(
-lat >= 41 &&
-lat <= 57 &&
-lon >= -95 &&
-lon <= -74
-){
 
-return {
+    return {
 
-country:"Canada",
-province:"Ontario",
-method:"offline-boundary-estimate",
-confidence:"medium"
+        country: "unknown",
+        province: "unknown",
+        method: "offline-estimate",
+        confidence: "low"
 
-};
-
-}
-
-
-
-
-// Quebec
-if(
-lat >= 45 &&
-lat <= 62 &&
-lon >= -80 &&
-lon <= -57
-){
-
-return {
-
-country:"Canada",
-province:"Quebec",
-method:"offline-boundary-estimate",
-confidence:"medium"
-
-};
-
-}
-
-
-
-
-
-/*
- ==========================
- UNITED KINGDOM
- ==========================
-*/
-
-
-if(
-lat >= 49.8 &&
-lat <= 59 &&
-lon >= -8.5 &&
-lon <= 2
-){
-
-return {
-
-country:"United Kingdom",
-province:"England / Scotland / Wales estimate",
-method:"offline-boundary-estimate",
-confidence:"low"
-
-};
-
-}
-
-
-
-
-
-/*
- ==========================
- FALLBACK
- ==========================
-*/
-
-
-return {
-
-country:"unknown",
-province:"unknown",
-method:"offline-boundary-estimate",
-confidence:"low"
-
-};
+    };
 
 
 }
@@ -300,34 +216,35 @@ confidence:"low"
 
 
 
-
-/*
- Optional helper:
- returns readable label
-*/
+function geoLabel(location) {
 
 
-function geoLabel(location){
+    if (!location) {
+
+        return "Unknown";
+
+    }
 
 
-if(!location)
-return "Unknown";
+    if (location.country === "unknown") {
+
+        return "Unknown";
+
+    }
 
 
-if(
-location.country==="unknown"
-){
+    if (location.province) {
 
-return "Unknown";
+        return (
+            location.country +
+            " - " +
+            location.province
+        );
 
-}
+    }
 
 
-return location.province
-?
-`${location.country} - ${location.province}`
-:
-location.country;
+    return location.country;
 
 
 }
