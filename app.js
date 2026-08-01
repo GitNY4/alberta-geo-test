@@ -3,7 +3,44 @@
 */
 
 
+document.addEventListener("DOMContentLoaded", function(){
+
+
+
+const tester = document.getElementById("tester");
+const flow = document.getElementById("flow");
+const scenario = document.getElementById("scenario");
+
+const result = document.getElementById("result");
+
+const failureSection = document.getElementById("failureSection");
+const failureType = document.getElementById("failureType");
+
+const device = document.getElementById("device");
+const userAgent = document.getElementById("userAgent");
+
+const networkManual = document.getElementById("networkManual");
+
+const description = document.getElementById("description");
+
+const locationStatus = document.getElementById("locationStatus");
+
+const refreshButton =
+document.getElementById("refreshLocation");
+
+const emailButton =
+document.getElementById("generateEmail");
+
+const copyButton =
+document.getElementById("copyJSON");
+
+const resetButton =
+document.getElementById("reset");
+
+
+
 let testId = generateTestId();
+
 
 
 let locationData = {
@@ -13,56 +50,75 @@ longitude:null,
 accuracy:null,
 capturedAt:null,
 accuracyCheck:null,
-coordinateLocation:null,
-qualityAssessment:null
+coordinateLocation:null
 
 };
 
 
 
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
+
+userAgent.value = navigator.userAgent;
+
+device.value = getDevice();
 
 
-userAgent.value=navigator.userAgent;
 
 
-device.value = detectDevice();
+result.addEventListener(
+"change",
+toggleFailure
+);
 
 
-toggleFailure();
+
+refreshButton.addEventListener(
+"click",
+refreshLocation
+);
 
 
-refreshLocation();
+
+emailButton.addEventListener(
+"click",
+generateEmail
+);
 
 
-}
 
+copyButton.addEventListener(
+"click",
+copyJSON
+);
+
+
+
+resetButton.addEventListener(
+"click",
+resetForm
 );
 
 
 
 
+toggleFailure();
 
-/*
- =====================
- TEST ID
- =====================
-*/
+refreshLocation();
+
+
+
 
 
 function generateTestId(){
 
 
-let d=new Date();
+let now = new Date();
 
 
 return (
 
 "TT-" +
 
-d.toISOString()
+now.toISOString()
 .substring(0,10)
 .replaceAll("-","")
 
@@ -72,7 +128,7 @@ d.toISOString()
 
 +
 
-d.toTimeString()
+now.toTimeString()
 .substring(0,8)
 .replaceAll(":","")
 
@@ -96,30 +152,28 @@ Math.random()
 
 
 
-/*
- =====================
- DEVICE
- =====================
-*/
 
 
-function detectDevice(){
+function getDevice(){
 
 
 return {
 
 platform:navigator.platform,
 
-mobile:/Android|iPhone|iPad/i.test(
-navigator.userAgent
-),
+mobile:
+(/Android|iPhone|iPad/i)
+.test(navigator.userAgent),
 
-browser:getBrowser()
+browser:
+getBrowser()
+
 
 };
 
 
 }
+
 
 
 
@@ -153,357 +207,6 @@ return "Unknown";
 
 
 
-/*
- =====================
- LOCATION
- =====================
-*/
-
-
-function refreshLocation(){
-
-
-locationStatus.innerHTML=
-"Refreshing location...";
-
-
-
-navigator.geolocation.getCurrentPosition(
-
-
-position=>{
-
-
-let c=position.coords;
-
-
-locationData.latitude=c.latitude;
-
-locationData.longitude=c.longitude;
-
-locationData.accuracy=Math.round(
-c.accuracy
-);
-
-
-locationData.capturedAt=
-new Date().toISOString();
-
-
-
-locationData.accuracyCheck=
-checkAccuracy(
-locationData.accuracy
-);
-
-
-
-locationData.coordinateLocation=
-estimateCoordinateLocation(
-c.latitude,
-c.longitude
-);
-
-
-
-locationData.qualityAssessment={
-
-locationUsable:
-locationData.accuracyCheck.acceptable,
-
-reason:
-locationData.accuracyCheck.reason
-
-};
-
-
-
-displayLocation();
-
-
-
-},
-
-
-error=>{
-
-
-locationStatus.innerHTML=
-`
-Location failed<br><br>
-${error.message}
-`;
-
-},
-
-
-{
-
-enableHighAccuracy:true,
-
-timeout:15000,
-
-maximumAge:0
-
-}
-
-
-
-);
-
-
-}
-
-
-
-
-
-function checkAccuracy(acc){
-
-
-if(acc<=20){
-
-
-return {
-
-acceptable:true,
-
-status:"HIGH",
-
-reason:"Excellent GPS accuracy"
-
-};
-
-
-}
-
-
-
-if(acc<=100){
-
-
-return {
-
-acceptable:true,
-
-status:"ACCEPTABLE",
-
-reason:"Location precision acceptable for testing"
-
-};
-
-
-}
-
-
-
-
-if(acc<=500){
-
-
-return {
-
-acceptable:true,
-
-status:"LOW",
-
-reason:
-"Location returned but precision reduced"
-
-};
-
-
-}
-
-
-
-
-return {
-
-acceptable:false,
-
-status:"POOR",
-
-reason:
-"Accuracy exceeds acceptable threshold"
-
-};
-
-
-
-}
-
-
-
-
-
-
-
-function displayLocation(){
-
-
-let l=locationData;
-
-
-locationStatus.innerHTML=
-
-
-`
-
-<b>Location captured</b>
-
-<br><br>
-
-
-Latitude:
-${l.latitude}
-
-<br>
-
-Longitude:
-${l.longitude}
-
-<br>
-
-Accuracy:
-${l.accuracy}m
-
-<br><br>
-
-
-Status:
-
-<b>${l.accuracyCheck.status}</b>
-
-
-<br>
-
-${l.accuracyCheck.reason}
-
-
-<br><br>
-
-
-Region estimate:
-
-<br>
-
-${geoLabel(l.coordinateLocation)}
-
-
-<br><br>
-
-Captured:
-
-<br>
-
-${l.capturedAt}
-
-
-`;
-
-
-
-}
-
-
-
-
-
-
-
-/*
- =====================
- IP LOCATION
- =====================
-*/
-
-
-async function getIPLocation(){
-
-
-try{
-
-
-let response =
-await fetch(
-"https://ipapi.co/json/"
-);
-
-
-
-let data =
-await response.json();
-
-
-
-return {
-
-
-country:
-data.country_name || "unknown",
-
-
-region:
-data.region || "unknown",
-
-
-source:
-"IP",
-
-
-confidence:
-"medium"
-
-
-};
-
-
-
-}
-
-catch(e){
-
-
-return {
-
-
-country:"unknown",
-
-region:"unknown",
-
-source:"unavailable",
-
-confidence:"low"
-
-
-};
-
-
-}
-
-
-}
-
-
-
-
-
-
-
-
-/*
- =====================
- FAILURE
- =====================
-*/
-
-
-result.addEventListener(
-"change",
-toggleFailure
-);
-
 
 
 function toggleFailure(){
@@ -531,11 +234,335 @@ result.value==="FAIL"
 
 
 
-/*
- =====================
- JSON
- =====================
-*/
+
+function refreshLocation(){
+
+
+locationStatus.innerHTML =
+"Refreshing location...";
+
+
+
+if(!navigator.geolocation){
+
+
+locationStatus.innerHTML =
+"Geolocation not supported";
+
+
+return;
+
+
+}
+
+
+
+navigator.geolocation.getCurrentPosition(
+
+
+function(position){
+
+
+let coords =
+position.coords;
+
+
+
+locationData.latitude =
+coords.latitude;
+
+
+locationData.longitude =
+coords.longitude;
+
+
+locationData.accuracy =
+Math.round(coords.accuracy);
+
+
+
+locationData.capturedAt =
+new Date().toISOString();
+
+
+
+
+locationData.accuracyCheck =
+checkAccuracy(
+locationData.accuracy
+);
+
+
+
+
+locationData.coordinateLocation =
+estimateCoordinateLocation(
+
+locationData.latitude,
+
+locationData.longitude
+
+);
+
+
+
+
+displayLocation();
+
+
+
+},
+
+
+
+
+function(error){
+
+
+locationStatus.innerHTML =
+
+"Location failed:<br>" +
+
+error.message;
+
+
+
+},
+
+
+
+{
+
+enableHighAccuracy:true,
+
+timeout:15000,
+
+maximumAge:0
+
+}
+
+
+);
+
+
+
+}
+
+
+
+
+
+
+
+
+function checkAccuracy(value){
+
+
+
+if(value<=20){
+
+
+return {
+
+status:"HIGH",
+
+acceptable:true,
+
+reason:
+"Excellent GPS accuracy"
+
+};
+
+
+}
+
+
+
+if(value<=100){
+
+
+return {
+
+status:"ACCEPTABLE",
+
+acceptable:true,
+
+reason:
+"Suitable for testing"
+
+};
+
+
+}
+
+
+
+if(value<=500){
+
+
+return {
+
+status:"LOW",
+
+acceptable:true,
+
+reason:
+"Reduced precision"
+
+};
+
+
+}
+
+
+
+
+return {
+
+status:"POOR",
+
+acceptable:false,
+
+reason:
+"Accuracy likely unreliable"
+
+};
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function displayLocation(){
+
+
+locationStatus.innerHTML =
+
+`
+
+<b>Location captured</b>
+
+<br><br>
+
+Latitude:
+${locationData.latitude}
+
+<br>
+
+Longitude:
+${locationData.longitude}
+
+<br>
+
+Accuracy:
+${locationData.accuracy}m
+
+<br><br>
+
+Status:
+${locationData.accuracyCheck.status}
+
+<br>
+
+${locationData.accuracyCheck.reason}
+
+<br><br>
+
+Region estimate:
+
+<br>
+
+${geoLabel(locationData.coordinateLocation)}
+
+<br><br>
+
+${locationData.capturedAt}
+
+`;
+
+
+
+}
+
+
+
+
+
+
+
+
+
+async function getIPLocation(){
+
+
+
+try{
+
+
+let response =
+await fetch(
+"https://ipapi.co/json/"
+);
+
+
+let data =
+await response.json();
+
+
+
+return {
+
+country:
+data.country_name || "unknown",
+
+region:
+data.region || "unknown",
+
+source:"IP",
+
+confidence:"medium"
+
+};
+
+
+
+}
+
+catch(error){
+
+
+return {
+
+country:"unknown",
+
+region:"unknown",
+
+source:"unavailable",
+
+confidence:"low"
+
+};
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
 
 
 async function buildJSON(){
@@ -553,21 +580,17 @@ new Date().toISOString(),
 
 
 
-tester:
-tester.value,
+tester:tester.value,
 
 
-testFlow:
-flow.value,
+testFlow:flow.value,
 
 
-scenario:
-scenario.value,
+scenario:scenario.value,
 
 
 
-result:
-result.value,
+result:result.value,
 
 
 
@@ -585,29 +608,20 @@ null,
 
 
 
-
-
-device:
-detectDevice(),
+device:getDevice(),
 
 
 
+browser:{
 
-browser:
-
-{
-
-userAgent:
-userAgent.value
+userAgent:userAgent.value
 
 },
 
 
 
 
-network:
-
-{
+network:{
 
 manualCarrier:
 networkManual.value
@@ -629,20 +643,11 @@ locationData.coordinateLocation,
 
 
 locationAccuracy:
-
 locationData.accuracyCheck,
 
 
 
-qualityAssessment:
-
-locationData.qualityAssessment,
-
-
-
-coordinates:
-
-{
+coordinates:{
 
 latitude:
 locationData.latitude,
@@ -657,14 +662,12 @@ locationData.accuracy
 
 
 
-
 description:
 description.value
 
 
 
 };
-
 
 
 }
@@ -675,14 +678,10 @@ description.value
 
 
 
-/*
- =====================
- EMAIL
- =====================
-*/
 
 
 async function generateEmail(){
+
 
 
 let data =
@@ -699,7 +698,7 @@ null,
 
 
 
-location.href =
+window.location.href =
 
 "mailto:nyoung@itsmanagement.net?subject="
 
@@ -707,7 +706,17 @@ location.href =
 
 encodeURIComponent(
 
-`[TEST][${data.result}][${data.testFlow}] ${data.testId}`
+"[TEST]["+
+
+data.result+
+
+"]["+
+
+data.testFlow+
+
+"] "+
+
+data.testId
 
 )
 
@@ -721,13 +730,6 @@ encodeURIComponent(json);
 
 
 
-alert(
-
-"Test ID:\n\n"+testId
-
-);
-
-
 }
 
 
@@ -737,18 +739,14 @@ alert(
 
 
 
-/*
- =====================
- COPY JSON
- =====================
-*/
-
 
 async function copyJSON(){
 
 
+
 let data =
 await buildJSON();
+
 
 
 let json =
@@ -765,13 +763,7 @@ await navigator.clipboard.writeText(json);
 
 
 alert(
-
-"JSON copied\n\n"
-
-+
-
-testId
-
+"JSON copied\n\n"+testId
 );
 
 
@@ -785,14 +777,9 @@ testId
 
 
 
-/*
- =====================
- RESET
- =====================
-*/
-
 
 function resetForm(){
+
 
 
 scenario.value="";
@@ -822,9 +809,7 @@ capturedAt:null,
 
 accuracyCheck:null,
 
-coordinateLocation:null,
-
-qualityAssessment:null
+coordinateLocation:null
 
 };
 
@@ -842,43 +827,4 @@ refreshLocation();
 
 
 
-
-
-refreshLocation();
-
-
-
-document
-.getElementById("refreshLocation")
-.onclick=refreshLocation;
-
-
-document
-.getElementById("generateEmail")
-.onclick=generateEmail;
-
-
-document
-.getElementById("copyJSON")
-.onclick=copyJSON;
-
-
-document
-.getElementById("reset")
-.onclick=resetForm;
-
-
-
-
-
-
-if(
-"serviceWorker" in navigator
-){
-
-navigator.serviceWorker.register(
-"sw.js"
-)
-.catch(()=>{});
-
-}
+});
