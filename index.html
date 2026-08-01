@@ -1,57 +1,474 @@
-
 <!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>TestTrack</title>
+<html>
+<head>
+<meta charset="utf-8">
+<title>TestTrack</title>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <link rel="manifest" href="manifest.json">
+
 <meta name="theme-color" content="#062f1c">
+
 <style>
-body{font-family:Arial;background:#062f1c;color:#fff;padding:20px}
-.container{max-width:600px;margin:auto;background:#0b472c;padding:25px;border-radius:12px}
-label{display:block;font-weight:bold;margin-top:15px}
-input,select,textarea,button{width:100%;box-sizing:border-box;padding:12px;margin-top:6px;border-radius:8px;border:none;font-size:16px}
-textarea{height:120px}button{margin-top:15px;background:#19a463;color:#fff;font-weight:bold}.secondary{background:#125936}.hidden{display:none}.info{margin-top:20px;padding:12px;background:#083820;border-radius:8px}
-</style></head><body><div class="container">
+body{
+font-family:Arial;
+background:#062f1c;
+color:#fff;
+padding:20px
+}
+
+.container{
+max-width:600px;
+margin:auto;
+background:#0b472c;
+padding:25px;
+border-radius:12px
+}
+
+label{
+display:block;
+font-weight:bold;
+margin-top:15px
+}
+
+input,select,textarea,button{
+width:100%;
+box-sizing:border-box;
+padding:12px;
+margin-top:6px;
+border-radius:8px;
+border:none;
+font-size:16px
+}
+
+textarea{
+height:120px
+}
+
+button{
+margin-top:15px;
+background:#19a463;
+color:#fff;
+font-weight:bold
+}
+
+.secondary{
+background:#125936
+}
+
+.hidden{
+display:none
+}
+
+.info{
+margin-top:20px;
+padding:12px;
+background:#083820;
+border-radius:8px
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
 <h2>TestTrack</h2>
-<label>Tester</label><select id="tester"><option>Nick</option><option>Josh</option></select>
-<label>Test Flow</label><select id="flow"><option>Geolocation</option><option>KYC</option><option>Native App</option><option>Banking</option><option>Games</option><option>Responsible Gaming</option><option>ITS Pages</option><option>Registration</option><option>Login</option><option>Domain Migration</option></select>
-<label>Scenario</label><input id="scenario">
-<label>Result</label><select id="result" onchange="toggleFailure()"><option>PASS</option><option>FAIL</option></select>
-<div id="failureSection" class="hidden"><label>Failure Type</label><select id="failureType"><option>Known Issue</option><option>New Issue</option></select></div>
-<label>Device</label><input id="device">
-<label>User Agent</label><textarea id="userAgent" readonly></textarea>
-<label>Network / Carrier</label><input id="networkManual">
-<label>Detailed Description</label><textarea id="description"></textarea>
-<div id="locationStatus" class="info">Location not checked</div>
-<button class="secondary" onclick="refreshLocation()">Refresh Location</button>
-<button onclick="generateEmail()">Generate Test Email</button>
-<button class="secondary" onclick="copyJSON()">Copy JSON</button>
-<button class="secondary" onclick="resetForm()">Reset Test</button>
+
+
+<label>Tester</label>
+<select id="tester">
+<option>Nick</option>
+<option>Josh</option>
+</select>
+
+
+<label>Test Flow</label>
+<select id="flow">
+<option>Geolocation</option>
+<option>KYC</option>
+<option>Native App</option>
+<option>Banking</option>
+<option>Games</option>
+<option>Responsible Gaming</option>
+<option>ITS Pages</option>
+<option>Registration</option>
+<option>Login</option>
+<option>Domain Migration</option>
+</select>
+
+
+<label>Scenario</label>
+<input id="scenario">
+
+
+<label>Result</label>
+<select id="result" onchange="toggleFailure()">
+<option>PASS</option>
+<option>FAIL</option>
+</select>
+
+
+<div id="failureSection" class="hidden">
+
+<label>Failure Type</label>
+<select id="failureType">
+<option>Known Issue</option>
+<option>New Issue</option>
+</select>
+
 </div>
+
+
+<label>Device</label>
+<input id="device">
+
+
+<label>User Agent</label>
+<textarea id="userAgent" readonly></textarea>
+
+
+<label>Network / Carrier</label>
+<input id="networkManual">
+
+
+<label>Detailed Description</label>
+<textarea id="description"></textarea>
+
+
+<div id="locationStatus" class="info">
+Location not checked
+</div>
+
+
+<button class="secondary" onclick="refreshLocation()">
+Refresh Location
+</button>
+
+
+<button onclick="generateEmail()">
+Generate Test Email
+</button>
+
+
+<button class="secondary" onclick="copyJSON()">
+Copy JSON
+</button>
+
+
+<button class="secondary" onclick="resetForm()">
+Reset Test
+</button>
+
+
+</div>
+
+
 <script>
+
 let latestJSON="";
-let locationData={latitude:null,longitude:null,accuracy:null,capturedAt:null};
-let connectionData={type:"Unknown",effectiveType:"Unknown"};
+
+
+let locationData={
+latitude:null,
+longitude:null,
+accuracy:null,
+capturedAt:null,
+accuracyCheck:null
+};
+
+
 document.getElementById("userAgent").value=navigator.userAgent;
-let c=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
-if(c){connectionData.type=c.type||"Unknown";connectionData.effectiveType=c.effectiveType||"Unknown";}
+
+
+
 function refreshLocation(){
-document.getElementById("locationStatus").innerHTML="Refreshing GPS...";
-navigator.geolocation.getCurrentPosition(p=>{
-locationData.latitude=p.coords.latitude;locationData.longitude=p.coords.longitude;locationData.accuracy=p.coords.accuracy;locationData.capturedAt=new Date().toISOString();
-let m=locationData.accuracy<=20?"Good GPS accuracy ✅":locationData.accuracy<=100?"Acceptable GPS accuracy ⚠️":"Poor GPS accuracy ❌";
-document.getElementById("locationStatus").innerHTML=`Location captured<br><br>Latitude: ${locationData.latitude}<br>Longitude: ${locationData.longitude}<br>Accuracy: ${Math.round(locationData.accuracy)}m<br><br>${m}<br><br>${locationData.capturedAt}`;
-},e=>{document.getElementById("locationStatus").innerHTML="Location failed<br>"+e.message;},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+
+document.getElementById("locationStatus").innerHTML=
+"Refreshing GPS...";
+
+
+navigator.geolocation.getCurrentPosition(
+
+p=>{
+
+
+locationData.latitude=p.coords.latitude;
+
+locationData.longitude=p.coords.longitude;
+
+locationData.accuracy=p.coords.accuracy;
+
+locationData.capturedAt=new Date().toISOString();
+
+
+
+let acceptable =
+locationData.accuracy <= 20;
+
+
+
+locationData.accuracyCheck={
+
+acceptable:acceptable,
+
+status:
+acceptable ?
+"ACCEPTABLE" :
+"NOT_ACCEPTABLE",
+
+threshold:
+"20m",
+
+reason:
+acceptable ?
+"GPS accuracy within expected range" :
+"GPS accuracy exceeded expected range"
+
+};
+
+
+
+document.getElementById("locationStatus").innerHTML=`
+
+Location captured<br><br>
+
+Latitude:
+${locationData.latitude}<br>
+
+Longitude:
+${locationData.longitude}<br>
+
+Accuracy:
+${Math.round(locationData.accuracy)}m
+
+<br><br>
+
+${locationData.accuracyCheck.status}
+
+<br><br>
+
+${locationData.accuracyCheck.reason}
+
+<br><br>
+
+${locationData.capturedAt}
+
+`;
+
+},
+
+
+e=>{
+
+document.getElementById("locationStatus").innerHTML=
+"Location failed<br>"+e.message;
+
+},
+
+
+{
+enableHighAccuracy:true,
+timeout:15000,
+maximumAge:0
 }
+
+);
+
+}
+
+
+
 refreshLocation();
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")refreshLocation();});
-window.addEventListener("pageshow",refreshLocation);
-function toggleFailure(){failureSection.style.display=result.value==="FAIL"?"block":"none";}
-function build(){
-let n=new Date(),id="AB-"+n.toISOString().substring(2,10).replaceAll("-","")+"-"+n.toTimeString().substring(0,5).replace(":","")+"-"+Math.random().toString(36).substring(2,5).toUpperCase();
-return {testId:id,timestamp:n.toISOString(),tester:tester.value,testFlow:flow.value,scenario:scenario.value,result:result.value,failureType:result.value==="FAIL"?failureType.value:null,device:device.value,userAgent:userAgent.value,network:{browserConnectionEstimate:connectionData,manualCarrier:networkManual.value},location:locationData,description:description.value};
+
+
+
+document.addEventListener(
+"visibilitychange",
+()=>{
+if(document.visibilityState==="visible")
+refreshLocation();
+});
+
+
+window.addEventListener(
+"pageshow",
+refreshLocation
+);
+
+
+
+function toggleFailure(){
+
+failureSection.style.display =
+result.value==="FAIL"
+?
+"block"
+:
+"none";
+
 }
-function generateEmail(){let d=build();latestJSON=JSON.stringify(d,null,2);location.href="mailto:nyoung@itsmanagement.net?subject="+encodeURIComponent(`[TEST][${d.result}][${d.testFlow}] ${d.testId}`)+"&body="+encodeURIComponent(latestJSON);}
-async function copyJSON(){if(!latestJSON){latestJSON=JSON.stringify(build(),null,2);}await navigator.clipboard.writeText(latestJSON);alert("JSON copied");}
-function resetForm(){scenario.value="";description.value="";networkManual.value="";result.value="PASS";toggleFailure();latestJSON="";refreshLocation();}
-if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}
-</script></body></html>
+
+
+
+
+function build(){
+
+
+let n=new Date();
+
+
+let id=
+"AB-"+
+n.toISOString()
+.substring(2,10)
+.replaceAll("-","")
++
+"-"+
+n.toTimeString()
+.substring(0,5)
+.replace(":","")
++
+"-"+
+Math.random()
+.toString(36)
+.substring(2,5)
+.toUpperCase();
+
+
+
+return {
+
+
+testId:id,
+
+timestamp:n.toISOString(),
+
+tester:tester.value,
+
+testFlow:flow.value,
+
+scenario:scenario.value,
+
+result:result.value,
+
+failureType:
+result.value==="FAIL"
+?
+failureType.value
+:
+null,
+
+
+device:device.value,
+
+
+userAgent:userAgent.value,
+
+
+network:{
+manualCarrier:networkManual.value
+},
+
+
+location:locationData,
+
+
+description:description.value
+
+
+};
+
+
+}
+
+
+
+
+function generateEmail(){
+
+let d=build();
+
+latestJSON=
+JSON.stringify(d,null,2);
+
+
+location.href=
+"mailto:nyoung@itsmanagement.net?subject="
++
+encodeURIComponent(
+`[TEST][${d.result}][${d.testFlow}] ${d.testId}`
+)
++
+"&body="
++
+encodeURIComponent(latestJSON);
+
+
+alert(
+"Test ID: "+d.testId
+);
+
+
+}
+
+
+
+
+async function copyJSON(){
+
+
+if(!latestJSON){
+
+latestJSON=
+JSON.stringify(build(),null,2);
+
+}
+
+
+await navigator.clipboard.writeText(latestJSON);
+
+
+alert("JSON copied");
+
+
+}
+
+
+
+
+function resetForm(){
+
+scenario.value="";
+
+description.value="";
+
+networkManual.value="";
+
+result.value="PASS";
+
+toggleFailure();
+
+latestJSON="";
+
+refreshLocation();
+
+}
+
+
+
+if("serviceWorker" in navigator){
+
+navigator.serviceWorker.register("sw.js")
+.catch(()=>{});
+
+}
+
+
+</script>
+
+
+</body>
+</html>
