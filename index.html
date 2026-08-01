@@ -4,7 +4,6 @@
 <head>
 
 <title>TestTrack</title>
-<p>Email to SMOP</p>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -54,15 +53,17 @@ textarea {
 
 button {
 
-    margin-top:25px;
+    margin-top:15px;
     background:#19a463;
     color:white;
     font-weight:bold;
 
 }
 
-button:hover {
-    background:#22c77a;
+.secondary {
+
+    background:#125936;
+
 }
 
 .hidden {
@@ -125,8 +126,7 @@ button:hover {
 
 <label>Scenario</label>
 
-<input 
-id="scenario"
+<input id="scenario"
 placeholder="Example: Login after switching WiFi to LTE">
 
 
@@ -162,42 +162,45 @@ placeholder="Example: Login after switching WiFi to LTE">
 
 <label>Device</label>
 
-<input
-id="device"
+<input id="device"
 placeholder="Example: iPhone 16 Plus">
 
 
 
 <label>User Agent</label>
 
-<textarea 
-id="userAgent"
-readonly>
-</textarea>
+<textarea id="userAgent" readonly></textarea>
 
 
 
 <label>Network / Carrier</label>
 
-<input
-id="networkManual"
+<input id="networkManual"
 placeholder="Optional: Telus / Rogers / WiFi">
 
 
 
 <label>Detailed Description</label>
 
-<textarea
-id="description"
+<textarea id="description"
 placeholder="Steps, expected result, actual result"></textarea>
+
 
 
 
 <div id="locationStatus" class="info">
 
-Detecting location...
+Location not checked
 
 </div>
+
+
+
+<button class="secondary" onclick="refreshLocation()">
+
+Refresh Location
+
+</button>
 
 
 
@@ -208,7 +211,17 @@ Generate Test Email
 </button>
 
 
+
+<button class="secondary" onclick="resetForm()">
+
+Reset Test
+
+</button>
+
+
+
 </div>
+
 
 
 
@@ -220,9 +233,10 @@ Generate Test Email
 
 let locationData = {
 
-    latitude:null,
-    longitude:null,
-    accuracy:null
+latitude:null,
+longitude:null,
+accuracy:null,
+capturedAt:null
 
 };
 
@@ -230,14 +244,14 @@ let locationData = {
 
 let connectionData = {
 
-    type:"Unknown",
-    effectiveType:"Unknown"
+type:"Unknown",
+effectiveType:"Unknown"
 
 };
 
 
 
-// Populate user agent
+// User agent
 
 document.getElementById("userAgent").value =
 navigator.userAgent;
@@ -246,7 +260,7 @@ navigator.userAgent;
 
 
 
-// Capture available network information
+// Network
 
 let connection =
 navigator.connection ||
@@ -256,11 +270,12 @@ navigator.webkitConnection;
 
 if(connection){
 
-    connectionData.type =
-    connection.type || "Unknown";
+connectionData.type =
+connection.type || "Unknown";
 
-    connectionData.effectiveType =
-    connection.effectiveType || "Unknown";
+
+connectionData.effectiveType =
+connection.effectiveType || "Unknown";
 
 }
 
@@ -268,13 +283,27 @@ if(connection){
 
 
 
+function refreshLocation(){
 
-// Get GPS
 
-if(navigator.geolocation){
+document.getElementById("locationStatus").innerHTML =
+"Refreshing GPS location...";
+
+
+
+if(!navigator.geolocation){
+
+document.getElementById("locationStatus").innerHTML =
+"GPS unavailable";
+
+return;
+
+}
+
 
 
 navigator.geolocation.getCurrentPosition(
+
 
 function(position){
 
@@ -291,10 +320,26 @@ locationData.accuracy =
 position.coords.accuracy;
 
 
+locationData.capturedAt =
+new Date().toISOString();
+
+
+
+let accuracyMessage =
+
+locationData.accuracy <= 20
+
+?
+"Good GPS accuracy"
+
+:
+"Poor GPS accuracy";
+
+
 
 document.getElementById("locationStatus").innerHTML =
 
-"Location captured<br>" +
+"Location captured ✅<br><br>" +
 
 "Latitude: " +
 locationData.latitude +
@@ -305,10 +350,17 @@ locationData.longitude +
 "<br>Accuracy: " +
 Math.round(locationData.accuracy)
 +
-"m";
+"m<br><br>" +
+
+accuracyMessage +
+
+"<br>" +
+
+locationData.capturedAt;
 
 
 },
+
 
 
 function(error){
@@ -316,16 +368,22 @@ function(error){
 
 document.getElementById("locationStatus").innerHTML =
 
-"Location unavailable";
+"Location failed ❌<br>" +
+
+error.message;
 
 
 },
 
 
+
 {
 
 enableHighAccuracy:true,
-timeout:10000
+
+timeout:15000,
+
+maximumAge:0
 
 }
 
@@ -334,6 +392,51 @@ timeout:10000
 
 
 }
+
+
+
+
+
+// Initial load
+
+refreshLocation();
+
+
+
+// When PWA comes back into foreground
+
+document.addEventListener(
+
+"visibilitychange",
+
+function(){
+
+if(document.visibilityState === "visible"){
+
+refreshLocation();
+
+}
+
+}
+
+);
+
+
+
+// iOS PWA resume
+
+window.addEventListener(
+
+"pageshow",
+
+function(){
+
+refreshLocation();
+
+}
+
+);
+
 
 
 
@@ -350,13 +453,19 @@ document.getElementById("result").value;
 document.getElementById("failureSection").style.display =
 
 result === "FAIL"
+
 ?
+
 "block"
+
 :
+
 "none";
 
 
 }
+
+
 
 
 
@@ -371,44 +480,37 @@ let now = new Date();
 
 
 
-let datePart =
-
-now.toISOString()
-.substring(2,10)
-.replaceAll("-","");
-
-
-
-let timePart =
-
-now.toTimeString()
-.substring(0,5)
-.replace(":","");
-
-
-
-let randomPart =
-
-Math.random()
-.toString(36)
-.substring(2,5)
-.toUpperCase();
-
-
-
 let testId =
 
 "AB-" +
 
-datePart +
+now.toISOString()
+
+.substring(2,10)
+
+.replaceAll("-","")
+
++
 
 "-" +
 
-timePart +
+now.toTimeString()
+
+.substring(0,5)
+
+.replace(":","")
+
++
 
 "-" +
 
-randomPart;
+Math.random()
+
+.toString(36)
+
+.substring(2,5)
+
+.toUpperCase();
 
 
 
@@ -444,7 +546,6 @@ document.getElementById("scenario").value,
 result:result,
 
 
-
 failureType:
 
 result === "FAIL"
@@ -471,8 +572,7 @@ document.getElementById("userAgent").value,
 
 network:{
 
-browserDetected:
-connectionData,
+detected:connectionData,
 
 manual:
 document.getElementById("networkManual").value
@@ -500,8 +600,6 @@ JSON.stringify(data,null,2);
 
 
 
-
-
 let subject =
 
 "[TEST][" +
@@ -518,9 +616,7 @@ testId;
 
 
 
-
-
-let mailURL =
+window.location.href =
 
 "mailto:nyoung@itsmanagement.net"
 
@@ -542,10 +638,25 @@ encodeURIComponent(json);
 
 
 
+}
 
 
-window.location.href = mailURL;
 
+
+
+
+
+function resetForm(){
+
+
+document.getElementById("scenario").value="";
+document.getElementById("description").value="";
+document.getElementById("networkManual").value="";
+document.getElementById("result").value="PASS";
+
+toggleFailure();
+
+refreshLocation();
 
 
 }
