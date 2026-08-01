@@ -1,6 +1,6 @@
-const CACHE_NAME="testtrack-v1";
+const CACHE_NAME = "testtrack-v2";
 
-const FILES=[
+const FILES = [
 "./",
 "./index.html",
 "./manifest.json",
@@ -10,12 +10,12 @@ const FILES=[
 
 self.addEventListener(
 "install",
-event=>{
+event => {
 
 event.waitUntil(
 
 caches.open(CACHE_NAME)
-.then(cache=>cache.addAll(FILES))
+.then(cache => cache.addAll(FILES))
 
 );
 
@@ -26,22 +26,18 @@ caches.open(CACHE_NAME)
 
 self.addEventListener(
 "activate",
-event=>{
+event => {
 
 event.waitUntil(
 
 caches.keys()
-.then(keys=>
+.then(keys =>
 
 Promise.all(
 
 keys
-.filter(
-key=>key!==CACHE_NAME
-)
-.map(
-key=>caches.delete(key)
-)
+.filter(key => key !== CACHE_NAME)
+.map(key => caches.delete(key))
 
 )
 
@@ -56,20 +52,18 @@ key=>caches.delete(key)
 
 self.addEventListener(
 "fetch",
-event=>{
-
+event => {
 
 event.respondWith(
 
 caches.match(event.request)
-.then(response=>{
+.then(response => {
 
-return response ||
-fetch(event.request);
+return response || fetch(event.request);
 
 })
 
 );
 
-
-});
+}
+);
