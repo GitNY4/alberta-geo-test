@@ -1,27 +1,19 @@
 /* TestTrack — media.js
-   Handles: Test ID generation, photo/video capture, and upload to Cloudinary.
-   Drop this file in your repo root and add <script src="media.js"></script>
-   to index.html, AFTER geo.js and app.js.
+   Handles: photo/video capture and upload to Cloudinary, linked to the
+   testId that app.js generates. Add <script src="media.js"></script>
+   to index.html AFTER app.js.
 */
 
 (function () {
   "use strict";
 
   // ---- 1. CONFIGURE THESE TWO VALUES ----
-  const CLOUDINARY_CLOUD_NAME = "z9gwe2hh";   // from Cloudinary dashboard
+  const CLOUDINARY_CLOUD_NAME = "z9gwe2hh";       // from Cloudinary dashboard
   const CLOUDINARY_UPLOAD_PRESET = "testtrack_unsigned"; // the unsigned preset you create
   // ----------------------------------------
 
   const UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`;
   const STORAGE_PREFIX = "ttmedia:";
-
-  function genTestId() {
-    const d = new Date();
-    const pad = (n) => String(n).padStart(2, "0");
-    const stamp = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
-    const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
-    return `TT-${stamp}-${rand}`;
-  }
 
   function loadMedia(testId) {
     try {
@@ -79,39 +71,34 @@
     const container = document.querySelector(".container");
     if (!container) return;
 
-    let testId = localStorage.getItem("ttCurrentTestId") || genTestId();
-    localStorage.setItem("ttCurrentTestId", testId);
+    // app.js's DOMContentLoaded listener runs first (it's loaded first in
+    // index.html), so window.TestTrackTestId is already set by this point.
+    let testId = window.TestTrackTestId;
 
     const section = document.createElement("div");
     section.className = "help";
     section.innerHTML = `
-      <b>Test ID</b>
-      <div style="display:flex;gap:8px;margin-top:6px;">
-        <input id="ttTestId" readonly style="flex:1;" value="${testId}">
-        <button type="button" id="ttNewId" class="secondary" style="width:auto;padding:12px 16px;">New</button>
-      </div>
-      <br>
       <b>Media (photo / video)</b>
+      <div id="ttTestIdLabel" style="margin-top:4px;font-size:13px;opacity:.85;">Linked to ${testId}</div>
       <input type="file" id="ttMediaInput" accept="image/*,video/*" capture="environment" multiple style="margin-top:8px;">
       <div id="ttUploadStatus" style="margin-top:8px;font-size:13px;opacity:.85;"></div>
       <div id="ttThumbs" style="margin-top:8px;"></div>
     `;
     container.insertBefore(section, container.querySelector(".help"));
 
-    const idInput = section.querySelector("#ttTestId");
-    const newBtn = section.querySelector("#ttNewId");
+    const idLabel = section.querySelector("#ttTestIdLabel");
     const fileInput = section.querySelector("#ttMediaInput");
     const status = section.querySelector("#ttUploadStatus");
     const thumbs = section.querySelector("#ttThumbs");
 
     renderThumbs(thumbs, testId);
 
-    newBtn.addEventListener("click", () => {
-      testId = genTestId();
-      localStorage.setItem("ttCurrentTestId", testId);
-      idInput.value = testId;
-      renderThumbs(thumbs, testId);
+    // app.js dispatches this on Reset Test — keep the media panel in sync
+    document.addEventListener("testtrack:reset", (e) => {
+      testId = e.detail.testId;
+      idLabel.textContent = `Linked to ${testId}`;
       status.textContent = "";
+      renderThumbs(thumbs, testId);
     });
 
     fileInput.addEventListener("change", () => {
@@ -138,12 +125,8 @@
       fileInput.value = "";
     });
 
-    // Public API — call this from app.js when building your Copy JSON payload:
-    //   const media = window.TestTrackMedia.getUrls();
+    // Public API — app.js's buildJSON() calls this to attach media URLs.
     window.TestTrackMedia = {
-      get testId() {
-        return testId;
-      },
       getUrls() {
         return loadMedia(testId).map((m) => m.url);
       },
