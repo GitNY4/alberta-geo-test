@@ -8,7 +8,7 @@
   "use strict";
 
   // ---- 1. CONFIGURE THESE TWO VALUES ----
-  const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUD_NAME";   // from Cloudinary dashboard
+  const CLOUDINARY_CLOUD_NAME = "z9gwe2hh";   // from Cloudinary dashboard
   const CLOUDINARY_UPLOAD_PRESET = "testtrack_unsigned"; // the unsigned preset you create
   // ----------------------------------------
 
