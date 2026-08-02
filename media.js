@@ -79,7 +79,7 @@
     slot.innerHTML = `
       <label style="margin-top:0;">Photo / Video</label>
       <div id="ttTestIdLabel" style="font-family:var(--font-mono, monospace);font-size:11.5px;color:var(--text-faint, #888);margin:-2px 0 8px;">Linked to ${testId}</div>
-      <input type="file" id="ttMediaInput" accept="image/*,video/*" capture="environment" multiple>
+      <input type="file" id="ttMediaInput" accept="image/*,video/*" multiple>
       <div id="ttUploadStatus" style="margin-top:8px;font-size:12.5px;color:var(--text-muted, #999);"></div>
       <div id="ttThumbs" style="margin-top:8px;"></div>
     `;
