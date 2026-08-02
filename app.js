@@ -1,5 +1,5 @@
 /*
- TestTrack app.js v5
+ TestTrack app.js v6
 */
 
 
@@ -261,7 +261,7 @@ function refreshLocation(){
 
 
 locationStatus.innerHTML =
-"Refreshing location...";
+'<span class="loc-idle">Refreshing location…</span>';
 
 
 
@@ -269,7 +269,7 @@ if(!navigator.geolocation){
 
 
 locationStatus.innerHTML =
-"Geolocation not supported";
+'<span class="loc-idle">Geolocation not supported</span>';
 
 
 return;
@@ -343,9 +343,11 @@ function(error){
 
 locationStatus.innerHTML =
 
-"Location failed:<br>" +
+'<span class="loc-idle">Location failed:<br>' +
 
-error.message;
+error.message +
+
+'</span>';
 
 
 
@@ -465,48 +467,51 @@ reason:
 function displayLocation(){
 
 
+let status = locationData.accuracyCheck.status;
+
+let statusClass = {
+HIGH:"status-high",
+ACCEPTABLE:"status-acceptable",
+LOW:"status-low",
+POOR:"status-poor"
+}[status];
+
+
 locationStatus.innerHTML =
 
 `
+<div class="loc-primary">
+<span class="loc-value">${locationData.accuracy}<span class="loc-unit">m</span></span>
+<span class="loc-status-badge ${statusClass}">${status}</span>
+</div>
 
-<b>Location captured</b>
+<div class="acc-scale">
+<span class="acc-seg ${status==="HIGH"?"active seg-h":""}"></span>
+<span class="acc-seg ${status==="ACCEPTABLE"?"active seg-a":""}"></span>
+<span class="acc-seg ${status==="LOW"?"active seg-l":""}"></span>
+<span class="acc-seg ${status==="POOR"?"active seg-p":""}"></span>
+</div>
 
-<br><br>
+<div class="loc-reason">${locationData.accuracyCheck.reason}</div>
 
-Latitude:
-${locationData.latitude}
-
-<br>
-
-Longitude:
-${locationData.longitude}
-
-<br>
-
-Accuracy:
-${locationData.accuracy}m
-
-<br><br>
-
-Status:
-${locationData.accuracyCheck.status}
-
-<br>
-
-${locationData.accuracyCheck.reason}
-
-<br><br>
-
-Region estimate:
-
-<br>
-
-${geoLabel(locationData.coordinateLocation)}
-
-<br><br>
-
-${locationData.capturedAt}
-
+<div class="loc-grid">
+<div>
+<span class="loc-label">Latitude</span>
+<span class="loc-mono">${locationData.latitude.toFixed(6)}</span>
+</div>
+<div>
+<span class="loc-label">Longitude</span>
+<span class="loc-mono">${locationData.longitude.toFixed(6)}</span>
+</div>
+<div>
+<span class="loc-label">Region</span>
+<span class="loc-mono">${geoLabel(locationData.coordinateLocation)}</span>
+</div>
+<div>
+<span class="loc-label">Captured</span>
+<span class="loc-mono">${locationData.capturedAt}</span>
+</div>
+</div>
 `;
 
 
