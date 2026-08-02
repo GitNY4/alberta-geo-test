@@ -1,14 +1,15 @@
 /* TestTrack — media.js
    Handles: photo/video capture and upload to Cloudinary, linked to the
-   testId that app.js generates. Add <script src="media.js"></script>
-   to index.html AFTER app.js.
+   testId that app.js generates. Renders into <div id="mediaSlot"></div>
+   in index.html. Add <script src="media.js"></script> to index.html
+   AFTER app.js.
 */
 
 (function () {
   "use strict";
 
   // ---- 1. CONFIGURE THESE TWO VALUES ----
-  const CLOUDINARY_CLOUD_NAME = "z9gwe2hh";       // from Cloudinary dashboard
+  const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUD_NAME";       // from Cloudinary dashboard
   const CLOUDINARY_UPLOAD_PRESET = "testtrack_unsigned"; // the unsigned preset you create
   // ----------------------------------------
 
@@ -34,11 +35,11 @@
     items.forEach((item) => {
       const wrap = document.createElement("div");
       wrap.style.cssText =
-        "display:inline-block;margin:6px;position:relative;width:88px;";
+        "display:inline-block;margin:6px 6px 0 0;position:relative;width:84px;";
       if (item.resource_type === "video") {
-        wrap.innerHTML = `<video src="${item.url}" style="width:88px;height:88px;object-fit:cover;border-radius:8px;" muted></video>`;
+        wrap.innerHTML = `<video src="${item.url}" style="width:84px;height:84px;object-fit:cover;border-radius:8px;border:1px solid var(--line);" muted></video>`;
       } else {
-        wrap.innerHTML = `<img src="${item.url}" style="width:88px;height:88px;object-fit:cover;border-radius:8px;">`;
+        wrap.innerHTML = `<img src="${item.url}" style="width:84px;height:84px;object-fit:cover;border-radius:8px;border:1px solid var(--line);">`;
       }
       container.appendChild(wrap);
     });
@@ -68,28 +69,25 @@
   }
 
   function init() {
-    const container = document.querySelector(".container");
-    if (!container) return;
+    const slot = document.getElementById("mediaSlot");
+    if (!slot) return;
 
     // app.js's DOMContentLoaded listener runs first (it's loaded first in
     // index.html), so window.TestTrackTestId is already set by this point.
     let testId = window.TestTrackTestId;
 
-    const section = document.createElement("div");
-    section.className = "help";
-    section.innerHTML = `
-      <b>Media (photo / video)</b>
-      <div id="ttTestIdLabel" style="margin-top:4px;font-size:13px;opacity:.85;">Linked to ${testId}</div>
-      <input type="file" id="ttMediaInput" accept="image/*,video/*" capture="environment" multiple style="margin-top:8px;">
-      <div id="ttUploadStatus" style="margin-top:8px;font-size:13px;opacity:.85;"></div>
+    slot.innerHTML = `
+      <label style="margin-top:0;">Photo / Video</label>
+      <div id="ttTestIdLabel" style="font-family:var(--font-mono, monospace);font-size:11.5px;color:var(--text-faint, #888);margin:-2px 0 8px;">Linked to ${testId}</div>
+      <input type="file" id="ttMediaInput" accept="image/*,video/*" capture="environment" multiple>
+      <div id="ttUploadStatus" style="margin-top:8px;font-size:12.5px;color:var(--text-muted, #999);"></div>
       <div id="ttThumbs" style="margin-top:8px;"></div>
     `;
-    container.insertBefore(section, container.querySelector(".help"));
 
-    const idLabel = section.querySelector("#ttTestIdLabel");
-    const fileInput = section.querySelector("#ttMediaInput");
-    const status = section.querySelector("#ttUploadStatus");
-    const thumbs = section.querySelector("#ttThumbs");
+    const idLabel = slot.querySelector("#ttTestIdLabel");
+    const fileInput = slot.querySelector("#ttMediaInput");
+    const status = slot.querySelector("#ttUploadStatus");
+    const thumbs = slot.querySelector("#ttThumbs");
 
     renderThumbs(thumbs, testId);
 
