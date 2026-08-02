@@ -1,5 +1,5 @@
 /*
- TestTrack app.js v3
+ TestTrack app.js v4
 */
 
 
@@ -40,6 +40,7 @@ document.getElementById("reset");
 
 
 let testId = generateTestId();
+window.TestTrackTestId = testId;
 
 
 
@@ -663,7 +664,21 @@ locationData.accuracy
 
 
 description:
-description.value
+description.value,
+
+
+
+media:
+
+window.TestTrackMedia
+
+?
+
+window.TestTrackMedia.getUrls()
+
+:
+
+[]
 
 
 
@@ -794,6 +809,12 @@ result.value="PASS";
 
 testId =
 generateTestId();
+
+window.TestTrackTestId = testId;
+
+document.dispatchEvent(
+new CustomEvent("testtrack:reset",{detail:{testId:testId}})
+);
 
 
 
