@@ -1,7 +1,7 @@
 /*
- TestTrack Service Worker v4
+ TestTrack Service Worker v5
 */
-const CACHE_NAME = "testtrack-v4";
+const CACHE_NAME = "testtrack-v5";
 const FILES = [
 "./",
 "./index.html",
@@ -19,6 +19,7 @@ const FILES = [
 self.addEventListener(
 "install",
 event=>{
+self.skipWaiting();
 event.waitUntil(
 caches.open(CACHE_NAME)
 .then(
@@ -42,6 +43,8 @@ key=>key!==CACHE_NAME
 key=>caches.delete(key)
 )
 )
+).then(
+()=>self.clients.claim()
 )
 );
 });
