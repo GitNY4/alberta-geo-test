@@ -1,6 +1,51 @@
 /*
- TestTrack app.js v4
+ TestTrack app.js v5
 */
+
+
+function ttGenerateTestId(){
+
+let now = new Date();
+
+return (
+
+"TT-" +
+
+now.toISOString()
+.substring(0,10)
+.replaceAll("-","")
+
++
+
+"-"
+
++
+
+now.toTimeString()
+.substring(0,8)
+.replaceAll(":","")
+
++
+
+"-"
+
++
+
+Math.random()
+.toString(36)
+.substring(2,7)
+.toUpperCase()
+
+);
+
+}
+
+
+// Set immediately, at script-parse time — not inside DOMContentLoaded —
+// so media.js (loaded after this file) can always read a real value.
+let testId = ttGenerateTestId();
+window.TestTrackTestId = testId;
+
 
 
 document.addEventListener("DOMContentLoaded", function(){
@@ -39,11 +84,6 @@ document.getElementById("reset");
 
 
 
-let testId = generateTestId();
-window.TestTrackTestId = testId;
-
-
-
 let locationData = {
 
 latitude:null,
@@ -60,7 +100,7 @@ coordinateLocation:null
 
 userAgent.value = navigator.userAgent;
 
-device.value = getDevice();
+device.value = getDeviceSummary();
 
 
 
@@ -109,49 +149,6 @@ refreshLocation();
 
 
 
-function generateTestId(){
-
-
-let now = new Date();
-
-
-return (
-
-"TT-" +
-
-now.toISOString()
-.substring(0,10)
-.replaceAll("-","")
-
-+
-
-"-"
-
-+
-
-now.toTimeString()
-.substring(0,8)
-.replaceAll(":","")
-
-+
-
-"-"
-
-+
-
-Math.random()
-.toString(36)
-.substring(2,7)
-.toUpperCase()
-
-);
-
-
-}
-
-
-
-
 
 
 
@@ -172,6 +169,30 @@ getBrowser()
 
 };
 
+
+}
+
+
+
+function getDeviceSummary(){
+
+let d = getDevice();
+
+return (
+
+d.platform +
+
+" — " +
+
+d.browser +
+
+" (" +
+
+(d.mobile ? "Mobile" : "Desktop") +
+
+")"
+
+);
 
 }
 
@@ -808,7 +829,7 @@ result.value="PASS";
 
 
 testId =
-generateTestId();
+ttGenerateTestId();
 
 window.TestTrackTestId = testId;
 
