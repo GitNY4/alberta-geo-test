@@ -1,9 +1,14 @@
 /*
  TestTrack geo.js
 
- Offline coordinate estimation.
- No API calls.
- Conservative results only.
+ Two location-lookup paths:
+   1. estimateCoordinateLocation()      — offline, instant, hardcoded bounding
+                                           boxes. No network required.
+   2. estimateCoordinateLocationOnline() — free BigDataCloud reverse-geocode
+                                           API. No API key. Requires network.
+                                           Returns null on any failure so the
+                                           caller can just keep the offline
+                                           estimate.
 */
 
 
@@ -210,6 +215,65 @@ function estimateCoordinateLocation(latitude, longitude) {
 
     };
 
+
+}
+
+
+
+
+async function estimateCoordinateLocationOnline(latitude, longitude) {
+
+    if (
+        typeof latitude !== "number" ||
+        typeof longitude !== "number"
+    ) {
+
+        return null;
+
+    }
+
+    try {
+
+        let response = await fetch(
+            "https://api.bigdatacloud.net/data/reverse-geocode-client" +
+            "?latitude=" + latitude +
+            "&longitude=" + longitude +
+            "&localityLanguage=en"
+        );
+
+        if (!response.ok) {
+
+            return null;
+
+        }
+
+        let data = await response.json();
+
+        if (!data || !data.countryName) {
+
+            return null;
+
+        }
+
+        return {
+
+            country: data.countryName,
+            province: data.principalSubdivision || "Region unavailable",
+            city: data.city || data.locality || null,
+            method: "bigdatacloud-api",
+            confidence: "high"
+
+        };
+
+    }
+
+    catch (error) {
+
+        // No network, request blocked, or API unavailable —
+        // caller keeps whatever offline estimate it already has.
+        return null;
+
+    }
 
 }
 
