@@ -1,7 +1,7 @@
 /*
- TestTrack Service Worker v8
+ TestTrack Service Worker v10
 */
-const CACHE_NAME = "testtrack-v8";
+const CACHE_NAME = "testtrack-v10";
 const FILES = [
 "./",
 "./index.html",
