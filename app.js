@@ -333,6 +333,29 @@ displayLocation();
 
 
 
+
+// Upgrade to a precise result if we have a network connection —
+// silently keeps the offline estimate if this fails or times out.
+estimateCoordinateLocationOnline(
+
+locationData.latitude,
+
+locationData.longitude
+
+).then(function(onlineResult){
+
+if (onlineResult) {
+
+locationData.coordinateLocation = onlineResult;
+
+displayLocation();
+
+}
+
+});
+
+
+
 },
 
 
@@ -504,7 +527,7 @@ locationStatus.innerHTML =
 <span class="loc-mono">${locationData.longitude.toFixed(6)}</span>
 </div>
 <div>
-<span class="loc-label">Region</span>
+<span class="loc-label">Region ${locationData.coordinateLocation.method==="bigdatacloud-api"?'<span style="color:var(--accent);">· verified</span>':'<span style="color:var(--text-faint);">· offline est.</span>'}</span>
 <span class="loc-mono">${geoLabel(locationData.coordinateLocation)}</span>
 </div>
 <div>
