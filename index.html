@@ -465,9 +465,18 @@ button{
       <option>Risk Management</option>
       <option>Ops</option>
       <option>Analytics</option>
-      <option>Alan F</option>
-      <option>Other</option>
+      <option id="customTesterOption" value="Other">Enter name / department…</option>
     </select>
+
+    <div id="customTesterSection" class="hidden">
+      <label for="customTester">Name / department</label>
+      <input
+        id="customTester"
+        type="text"
+        placeholder="Enter tester name or department"
+        autocomplete="name"
+      >
+    </div>
 
     <label for="flow">Test Flow</label>
     <select id="flow">
@@ -609,6 +618,40 @@ button{
   window.addEventListener("offline", syncNet);
   syncNet();
 
+  // Allow a tester name or department that is not in the fixed list.
+  // app.js can continue to read document.getElementById("tester").value.
+  var testerSelect = document.getElementById("tester");
+  var customTesterSection = document.getElementById("customTesterSection");
+  var customTesterInput = document.getElementById("customTester");
+  var customTesterOption = document.getElementById("customTesterOption");
+
+  function syncCustomTester(){
+    var customSelected = testerSelect.selectedOptions[0] === customTesterOption;
+    customTesterSection.classList.toggle("hidden", !customSelected);
+
+    if (customSelected){
+      var customValue = customTesterInput.value.trim();
+      customTesterOption.value = customValue || "Other";
+      customTesterOption.textContent = customValue || "Enter name / department…";
+    }
+  }
+
+  testerSelect.addEventListener("change", function(){
+    syncCustomTester();
+
+    if (testerSelect.selectedOptions[0] === customTesterOption){
+      customTesterInput.focus();
+    }
+  });
+
+  customTesterInput.addEventListener("input", function(){
+    var customValue = customTesterInput.value.trim();
+    customTesterOption.value = customValue || "Other";
+    customTesterOption.textContent = customValue || "Enter name / department…";
+  });
+
+  syncCustomTester();
+
   // Segmented PASS/FAIL toggle, kept in sync with the underlying select.
   var select = document.getElementById("result");
   var buttons = document.querySelectorAll("#resultToggle .seg-btn");
@@ -630,6 +673,11 @@ button{
   // app.js dispatches this event when Reset Test runs.
   document.addEventListener("testtrack:reset", function(e){
     syncButtons();
+
+    customTesterInput.value = "";
+    customTesterOption.value = "Other";
+    customTesterOption.textContent = "Enter name / department…";
+    syncCustomTester();
 
     var resetIdElement = document.getElementById("testIdDisplay");
     if (resetIdElement && e.detail && e.detail.testId){
