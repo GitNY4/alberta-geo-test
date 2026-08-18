@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" href="icon-32.png" type="image/png">
 <link rel="apple-touch-icon" href="icon-180.png">
-
 <meta charset="utf-8">
 <title>TestTrack</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -16,13 +14,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TestTrack">
 <meta name="description" content="Internal testing location and evidence capture tool">
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-
 <style>
-
 :root{
   --bg-deep:#051f14;
   --bg-panel:#0b3423;
@@ -48,9 +43,7 @@
   --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   color-scheme:dark;
 }
-
 *{box-sizing:border-box;}
-
 body{
   margin:0;
   font-family:var(--font-body);
@@ -61,30 +54,25 @@ body{
   min-height:100vh;
   -webkit-tap-highlight-color:transparent;
 }
-
+body.modal-open{overflow:hidden;}
 .shell{
   max-width:560px;
   margin:0 auto;
   padding:20px 16px 48px;
 }
-
 /* header */
-
 .app-header{
   display:flex;
   align-items:center;
   gap:12px;
   padding:4px 2px 18px;
 }
-
 .app-mark{
   width:42px;
   height:42px;
   flex-shrink:0;
 }
-
 .app-title-group{flex:1;min-width:0;}
-
 .app-title{
   font-family:var(--font-display);
   font-size:19px;
@@ -93,7 +81,6 @@ body{
   margin:0;
   line-height:1.1;
 }
-
 .app-tagline{
   font-size:11px;
   color:var(--text-muted);
@@ -101,7 +88,6 @@ body{
   letter-spacing:.09em;
   margin-top:3px;
 }
-
 .status-chip{
   display:flex;
   align-items:center;
@@ -115,7 +101,6 @@ body{
   white-space:nowrap;
   flex-shrink:0;
 }
-
 .status-dot{
   width:6px;
   height:6px;
@@ -123,14 +108,11 @@ body{
   background:var(--accent);
   box-shadow:0 0 8px var(--accent);
 }
-
 .status-chip.offline .status-dot{
   background:var(--fail);
   box-shadow:0 0 8px var(--fail);
 }
-
 /* test id bar */
-
 .testid-bar{
   display:flex;
   align-items:center;
@@ -142,7 +124,6 @@ body{
   padding:11px 14px;
   margin-bottom:18px;
 }
-
 .testid-label{
   font-size:10px;
   letter-spacing:.1em;
@@ -150,7 +131,6 @@ body{
   color:var(--text-faint);
   font-weight:600;
 }
-
 .testid-value{
   font-family:var(--font-mono);
   font-size:13px;
@@ -159,9 +139,7 @@ body{
   overflow-wrap:anywhere;
   text-align:right;
 }
-
 /* panels */
-
 .panel{
   background:var(--bg-panel);
   border:1px solid var(--line-soft);
@@ -169,7 +147,6 @@ body{
   padding:18px 18px 20px;
   margin-bottom:14px;
 }
-
 .panel-title{
   font-family:var(--font-display);
   font-size:12px;
@@ -179,9 +156,7 @@ body{
   margin:0 0 4px;
   font-weight:600;
 }
-
 /* form fields */
-
 label{
   display:block;
   font-family:var(--font-body);
@@ -191,9 +166,7 @@ label{
   margin-top:16px;
   margin-bottom:6px;
 }
-
 .panel label:first-of-type{margin-top:14px;}
-
 input,select,textarea{
   width:100%;
   padding:11px 13px;
@@ -205,24 +178,19 @@ input,select,textarea{
   font-size:15px;
   transition:border-color .15s, box-shadow .15s;
 }
-
 input:focus,select:focus,textarea:focus{
   outline:none;
   border-color:var(--accent);
   box-shadow:0 0 0 3px var(--accent-soft);
 }
-
 input[readonly],textarea[readonly]{
   font-family:var(--font-mono);
   font-size:12.5px;
   color:var(--text-muted);
   background:var(--bg-panel-alt);
 }
-
 textarea{min-height:88px;resize:vertical;}
-
 /* segmented pass/fail */
-
 .sr-select{
   position:absolute;
   width:1px;height:1px;
@@ -232,14 +200,12 @@ textarea{min-height:88px;resize:vertical;}
   white-space:nowrap;
   border:0;
 }
-
 .seg-group{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:8px;
   margin-top:6px;
 }
-
 .seg-btn{
   padding:12px;
   border-radius:var(--radius-sm);
@@ -253,14 +219,10 @@ textarea{min-height:88px;resize:vertical;}
   cursor:pointer;
   transition:all .15s;
 }
-
 .seg-btn.active.seg-pass{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);}
 .seg-btn.active.seg-fail{background:var(--fail-soft);border-color:var(--fail);color:var(--fail);}
-
 #failureSection{margin-top:2px;}
-
 /* location readout */
-
 .info{
   background:var(--bg-panel-alt);
   border:1px solid var(--line-soft);
@@ -270,9 +232,7 @@ textarea{min-height:88px;resize:vertical;}
   font-size:13px;
   color:var(--text-muted);
 }
-
 .loc-idle{font-family:var(--font-mono);font-size:13px;color:var(--text-faint);}
-
 .loc-primary{
   display:flex;
   align-items:baseline;
@@ -280,10 +240,8 @@ textarea{min-height:88px;resize:vertical;}
   margin-bottom:12px;
   gap:10px;
 }
-
 .loc-value{font-family:var(--font-mono);font-size:34px;font-weight:600;color:var(--text);line-height:1;}
 .loc-unit{font-size:15px;color:var(--text-muted);margin-left:2px;}
-
 .loc-status-badge{
   font-family:var(--font-display);
   font-size:11px;
@@ -293,27 +251,22 @@ textarea{min-height:88px;resize:vertical;}
   border-radius:20px;
   white-space:nowrap;
 }
-
 .status-high{background:var(--accent-soft);color:var(--accent);}
 .status-acceptable{background:rgba(232,179,57,.14);color:var(--warn);}
 .status-low{background:var(--low-soft);color:var(--low);}
 .status-poor{background:var(--fail-soft);color:var(--fail);}
-
 .acc-scale{
   display:grid;
   grid-template-columns:repeat(4,1fr);
   gap:4px;
   margin-bottom:11px;
 }
-
 .acc-seg{height:5px;border-radius:3px;background:var(--line);}
 .acc-seg.active.seg-h{background:var(--accent);}
 .acc-seg.active.seg-a{background:var(--warn);}
 .acc-seg.active.seg-l{background:var(--low);}
 .acc-seg.active.seg-p{background:var(--fail);}
-
 .loc-reason{font-size:12.5px;color:var(--text-muted);margin-bottom:14px;}
-
 .loc-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -321,11 +274,9 @@ textarea{min-height:88px;resize:vertical;}
   border-top:1px solid var(--line-soft);
   padding-top:12px;
 }
-
 .loc-grid > div{display:flex;flex-direction:column;gap:2px;min-width:0;}
 .loc-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);}
 .loc-mono{font-family:var(--font-mono);font-size:12px;color:var(--text);overflow-wrap:anywhere;}
-
 .btn-utility{
   width:auto;
   background:var(--bg-panel);
@@ -340,9 +291,7 @@ textarea{min-height:88px;resize:vertical;}
   cursor:pointer;
   margin-top:14px;
 }
-
 /* collapsible help */
-
 .help{
   background:var(--bg-panel-alt);
   border:1px solid var(--line-soft);
@@ -353,7 +302,6 @@ textarea{min-height:88px;resize:vertical;}
   color:var(--text-muted);
   line-height:1.6;
 }
-
 .help b, .help summary{
   font-family:var(--font-display);
   font-size:11.5px;
@@ -362,15 +310,11 @@ textarea{min-height:88px;resize:vertical;}
   color:var(--text);
   font-weight:600;
 }
-
 .help summary{cursor:pointer;}
 .help summary::marker{color:var(--accent);}
 .help .guide-body{margin-top:10px;}
-
 /* action buttons */
-
 .actions{margin-top:22px;}
-
 button{
   width:100%;
   padding:14px;
@@ -380,14 +324,12 @@ button{
   cursor:pointer;
   font-family:var(--font-display);
 }
-
 .btn-primary{
   background:var(--accent);
   color:#052015;
   font-weight:700;
   letter-spacing:.02em;
 }
-
 .btn-secondary{
   background:transparent;
   border:1px solid var(--accent-dim);
@@ -395,7 +337,6 @@ button{
   font-weight:600;
   margin-top:10px;
 }
-
 .btn-ghost{
   background:transparent;
   border:1px solid var(--line);
@@ -405,21 +346,84 @@ button{
   font-weight:500;
   margin-top:18px;
 }
-
 .hidden{display:none;}
 
+/* New Test ID confirmation */
+.confirm-overlay{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(2,14,9,.82);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+}
+.confirm-overlay.hidden{display:none;}
+.confirm-dialog{
+  width:100%;
+  max-width:420px;
+  padding:20px;
+  background:var(--bg-panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
+}
+.confirm-title{
+  margin:0 0 10px;
+  font-family:var(--font-display);
+  font-size:18px;
+  color:var(--text);
+}
+.confirm-message{
+  margin:0;
+  color:var(--text-muted);
+  font-size:14px;
+  line-height:1.55;
+}
+.confirm-warning{
+  margin:14px 0 0;
+  padding:11px 12px;
+  border:1px solid var(--warn);
+  border-radius:var(--radius-sm);
+  background:rgba(232,179,57,.12);
+  color:var(--warn);
+  font-size:13px;
+  font-weight:600;
+  line-height:1.45;
+}
+.confirm-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:18px;
+}
+.confirm-actions button{margin:0;}
+.confirm-no{
+  background:transparent;
+  border:1px solid var(--line);
+  color:var(--text-muted);
+  font-weight:600;
+}
+.confirm-yes{
+  background:var(--accent);
+  color:#052015;
+  font-weight:700;
+}
+.confirm-no:focus-visible,
+.confirm-yes:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:3px;
+}
 @media (max-width:400px){
   .loc-value{font-size:28px;}
 }
-
 </style>
-
 </head>
-
 <body>
-
 <div class="shell">
-
   <div class="app-header">
     <svg class="app-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <rect width="100" height="100" rx="20" fill="#0b3423"/>
@@ -451,14 +455,13 @@ button{
 
   <div class="panel">
     <p class="panel-title">Test Details</p>
-
-    <label>Tester</label>
+    <label for="tester">Tester</label>
     <select id="tester">
       <option>Nick</option>
       <option>Josh</option>
     </select>
 
-    <label>Test Flow</label>
+    <label for="flow">Test Flow</label>
     <select id="flow">
       <option>Geolocation</option>
       <option>KYC</option>
@@ -473,21 +476,22 @@ button{
       <option>Alberta - Alan Frank</option>
     </select>
 
-    <label>Scenario</label>
+    <label for="scenario">Scenario</label>
     <input id="scenario" placeholder="What are you testing?">
 
-    <label>Result</label>
+    <label for="result">Result</label>
     <select id="result" class="sr-select">
       <option>PASS</option>
       <option>FAIL</option>
     </select>
+
     <div class="seg-group" id="resultToggle">
       <button type="button" class="seg-btn seg-pass active" data-value="PASS">PASS</button>
       <button type="button" class="seg-btn seg-fail" data-value="FAIL">FAIL</button>
     </div>
 
     <div id="failureSection" class="hidden">
-      <label>Failure Type</label>
+      <label for="failureType">Failure Type</label>
       <select id="failureType">
         <option>Known Issue</option>
         <option>New Issue</option>
@@ -497,24 +501,21 @@ button{
 
   <div class="panel">
     <p class="panel-title">Device &amp; Network</p>
+    <label for="device">Device</label>
+    <input id="device">
 
-    <label>Device</label>
-    <input id="device" >
-
-    <label>User Agent</label>
+    <label for="userAgent">User Agent</label>
     <textarea id="userAgent" readonly></textarea>
 
-    <label>Network / Carrier (manual)</label>
+    <label for="networkManual">Network / Carrier (manual)</label>
     <input id="networkManual" placeholder="e.g. Telstra 5G">
   </div>
 
   <div class="panel">
     <p class="panel-title">Location</p>
-
     <div id="locationStatus" class="info">
       <span class="loc-idle">Location not checked</span>
     </div>
-
     <button type="button" class="btn-utility" id="refreshLocation">Refresh Location</button>
 
     <details class="help">
@@ -542,7 +543,7 @@ button{
 
   <div class="panel">
     <p class="panel-title">Notes</p>
-    <label>Description</label>
+    <label for="description">Description</label>
     <textarea id="description" placeholder="Steps, observations, anything worth flagging..."></textarea>
   </div>
 
@@ -551,30 +552,56 @@ button{
     <button type="button" class="btn-secondary" id="generateEmail">Generate Test Email</button>
     <button type="button" class="btn-ghost" id="reset">Reset Test</button>
   </div>
+</div>
 
+<div
+  class="confirm-overlay hidden"
+  id="newTestPrompt"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="newTestPromptTitle"
+  aria-describedby="newTestPromptMessage newTestPromptWarning"
+>
+  <div class="confirm-dialog">
+    <h2 class="confirm-title" id="newTestPromptTitle">Start a new test?</h2>
+
+    <p class="confirm-message" id="newTestPromptMessage">
+      Do you want to reset the app and generate a new Test ID?
+    </p>
+
+    <p class="confirm-warning" id="newTestPromptWarning">
+      Warning: You must not submit the same Test ID more than once.
+    </p>
+
+    <div class="confirm-actions">
+      <button type="button" class="confirm-no" id="newTestNo">No</button>
+      <button type="button" class="confirm-yes" id="newTestYes">Yes</button>
+    </div>
+  </div>
 </div>
 
 <script src="geo.js"></script>
 <script src="app.js"></script>
 <script src="media.js"></script>
-
 <script>
 (function(){
   "use strict";
 
-  // online/offline status chip
+  // Online/offline status chip.
   var chip = document.getElementById("netStatus");
   var label = document.getElementById("netStatusLabel");
+
   function syncNet(){
     var online = navigator.onLine;
     chip.classList.toggle("offline", !online);
     label.textContent = online ? "ONLINE" : "OFFLINE";
   }
+
   window.addEventListener("online", syncNet);
   window.addEventListener("offline", syncNet);
   syncNet();
 
-  // segmented PASS/FAIL toggle, kept in sync with the underlying <select id="result">
+  // Segmented PASS/FAIL toggle, kept in sync with the underlying select.
   var select = document.getElementById("result");
   var buttons = document.querySelectorAll("#resultToggle .seg-btn");
 
@@ -587,25 +614,163 @@ button{
   buttons.forEach(function(btn){
     btn.addEventListener("click", function(){
       select.value = btn.dataset.value;
-      select.dispatchEvent(new Event("change", { bubbles: true }));
+      select.dispatchEvent(new Event("change", { bubbles:true }));
       syncButtons();
     });
   });
 
-  // app.js dispatches this on Reset Test
+  // app.js dispatches this event when Reset Test runs.
   document.addEventListener("testtrack:reset", function(e){
     syncButtons();
-    var idEl = document.getElementById("testIdDisplay");
-    if (idEl && e.detail && e.detail.testId) idEl.textContent = e.detail.testId;
+
+    var resetIdElement = document.getElementById("testIdDisplay");
+    if (resetIdElement && e.detail && e.detail.testId){
+      resetIdElement.textContent = e.detail.testId;
+    }
   });
 
   syncButtons();
 
-  // initial test id display (app.js sets window.TestTrackTestId before this runs)
-  var idEl = document.getElementById("testIdDisplay");
-  if (idEl && window.TestTrackTestId) idEl.textContent = window.TestTrackTestId;
+  // Initial Test ID display. app.js sets this value before this script runs.
+  var idElement = document.getElementById("testIdDisplay");
+  if (idElement && window.TestTrackTestId){
+    idElement.textContent = window.TestTrackTestId;
+  }
+
+  // New Test ID confirmation.
+  var promptElement = document.getElementById("newTestPrompt");
+  var yesButton = document.getElementById("newTestYes");
+  var noButton = document.getElementById("newTestNo");
+  var copyButton = document.getElementById("copyJSON");
+  var emailButton = document.getElementById("generateEmail");
+  var resetButton = document.getElementById("reset");
+  var promptPending = false;
+  var lastFocusedElement = null;
+  var promptParameter = "newTestPrompt";
+
+  function setPromptMarker(enabled){
+    promptPending = enabled;
+
+    // The URL marker lets the prompt survive a page refresh without storing
+    // test data in localStorage or sessionStorage.
+    try{
+      var url = new URL(window.location.href);
+
+      if (enabled){
+        url.searchParams.set(promptParameter, "1");
+      } else {
+        url.searchParams.delete(promptParameter);
+      }
+
+      window.history.replaceState(null, "", url.toString());
+    } catch (error){
+      // The in-memory flag still works if the History API is unavailable.
+    }
+  }
+
+  function hasPromptMarker(){
+    if (promptPending) return true;
+
+    try{
+      var url = new URL(window.location.href);
+      return url.searchParams.get(promptParameter) === "1";
+    } catch (error){
+      return false;
+    }
+  }
+
+  function showNewTestPrompt(){
+    if (!hasPromptMarker()) return;
+    if (document.visibilityState === "hidden") return;
+    if (!promptElement.classList.contains("hidden")) return;
+
+    lastFocusedElement = document.activeElement;
+    promptElement.classList.remove("hidden");
+    document.body.classList.add("modal-open");
+    yesButton.focus();
+  }
+
+  function closeNewTestPrompt(){
+    promptElement.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+    setPromptMarker(false);
+
+    if (lastFocusedElement && typeof lastFocusedElement.focus === "function"){
+      lastFocusedElement.focus();
+    }
+  }
+
+  function queueNewTestPrompt(delay){
+    setPromptMarker(true);
+
+    window.setTimeout(function(){
+      showNewTestPrompt();
+    }, delay);
+  }
+
+  // Capture mode does not replace or cancel the existing app.js functions.
+  // Copy JSON and Generate Test Email continue to run normally.
+  copyButton.addEventListener("click", function(){
+    queueNewTestPrompt(400);
+  }, true);
+
+  emailButton.addEventListener("click", function(){
+    // If an email app opens, the prompt appears when this app becomes visible again.
+    queueNewTestPrompt(700);
+  }, true);
+
+  yesButton.addEventListener("click", function(){
+    closeNewTestPrompt();
+
+    // Use the existing Reset Test function and its Test ID generation logic.
+    resetButton.click();
+  });
+
+  noButton.addEventListener("click", function(){
+    closeNewTestPrompt();
+  });
+
+  // Keep keyboard focus inside the modal and allow Escape to act as No.
+  promptElement.addEventListener("keydown", function(event){
+    if (event.key === "Escape"){
+      event.preventDefault();
+      closeNewTestPrompt();
+      return;
+    }
+
+    if (event.key !== "Tab") return;
+
+    var focusable = [noButton, yesButton];
+    var first = focusable[0];
+    var last = focusable[focusable.length - 1];
+
+    if (event.shiftKey && document.activeElement === first){
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last){
+      event.preventDefault();
+      first.focus();
+    }
+  });
+
+  // Show the pending prompt after returning from an email app or another tab.
+  window.addEventListener("focus", function(){
+    window.setTimeout(showNewTestPrompt, 100);
+  });
+
+  document.addEventListener("visibilitychange", function(){
+    if (document.visibilityState === "visible"){
+      window.setTimeout(showNewTestPrompt, 100);
+    }
+  });
+
+  window.addEventListener("pageshow", function(){
+    window.setTimeout(showNewTestPrompt, 100);
+  });
+
+  // Also show it after a page reload when the URL marker is present.
+  window.setTimeout(showNewTestPrompt, 100);
 })();
 </script>
-
 </body>
 </html>
