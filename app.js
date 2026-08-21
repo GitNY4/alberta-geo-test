@@ -55,7 +55,8 @@ document.addEventListener("DOMContentLoaded", function(){
 const tester = document.getElementById("tester");
 const flow = document.getElementById("flow");
 const scenario = document.getElementById("scenario");
-
+const accountNumber = document.getElementById("accountNumber");
+const accountUrl = document.getElementById("accountUrl");
 const result = document.getElementById("result");
 
 const failureSection = document.getElementById("failureSection");
@@ -613,132 +614,41 @@ confidence:"low"
 
 
 
-
-
 async function buildJSON(){
-
-
-
-return {
-
-
-testId:testId,
-
-
-timestamp:
-new Date().toISOString(),
-
-
-
-tester:tester.value,
-
-
-testFlow:flow.value,
-
-
-scenario:scenario.value,
-
-
-
-result:result.value,
-
-
-
-failureType:
-
-result.value==="FAIL"
-
-?
-
-failureType.value
-
-:
-
-null,
-
-
-
-device:getDevice(),
-
-
-
-browser:{
-
-userAgent:userAgent.value
-
-},
-
-
-
-
-network:{
-
-manualCarrier:
-networkManual.value
-
-},
-
-
-
-
-ipLocation:
-await getIPLocation(),
-
-
-
-
-coordinateLocation:
-locationData.coordinateLocation,
-
-
-
-locationAccuracy:
-locationData.accuracyCheck,
-
-
-
-coordinates:{
-
-latitude:
-locationData.latitude,
-
-longitude:
-locationData.longitude,
-
-accuracy:
-locationData.accuracy
-
-},
-
-
-
-description:
-description.value,
-
-
-
-media:
-
-window.TestTrackMedia
-
-?
-
-window.TestTrackMedia.getUrls()
-
-:
-
-[]
-
-
-
-};
-
-
+  return {
+    testId:testId,
+    timestamp:new Date().toISOString(),
+    tester:tester.value,
+    testFlow:flow.value,
+    scenario:scenario.value,
+
+    accountDetails:getAccountDetails(),
+
+    result:result.value,
+    failureType:
+      result.value==="FAIL"
+        ? failureType.value
+        : null,
+
+    device:getDevice(),
+    browser:{
+      userAgent:userAgent.value
+    },
+    network:{
+      manualCarrier:networkManual.value
+    },
+    ipLocation:await getIPLocation(),
+    coordinateLocation:locationData.coordinateLocation,
+    locationAccuracy:locationData.accuracyCheck,
+    coordinates:{
+      latitude:locationData.latitude,
+      longitude:locationData.longitude,
+      accuracy:locationData.accuracy,
+      capturedAt:locationData.capturedAt
+    },
+    description:description.value
+  };
 }
-
-
-
-
 
 
 
@@ -840,60 +750,37 @@ alert(
 
 
 
-
-
 function resetForm(){
+  scenario.value = "";
+  description.value = "";
+  networkManual.value = "";
 
+  accountNumber.value = "";
+  accountUrl.value = "";
 
+  result.value = "PASS";
 
-scenario.value="";
+  testId = ttGenerateTestId();
+  window.TestTrackTestId = testId;
 
-description.value="";
+  document.dispatchEvent(
+    new CustomEvent("testtrack:reset", {
+      detail:{testId:testId}
+    })
+  );
 
-networkManual.value="";
+  locationData = {
+    latitude:null,
+    longitude:null,
+    accuracy:null,
+    capturedAt:null,
+    accuracyCheck:null,
+    coordinateLocation:null
+  };
 
-
-result.value="PASS";
-
-
-testId =
-ttGenerateTestId();
-
-window.TestTrackTestId = testId;
-
-document.dispatchEvent(
-new CustomEvent("testtrack:reset",{detail:{testId:testId}})
-);
-
-
-
-locationData={
-
-latitude:null,
-
-longitude:null,
-
-accuracy:null,
-
-capturedAt:null,
-
-accuracyCheck:null,
-
-coordinateLocation:null
-
-};
-
-
-
-toggleFailure();
-
-
-refreshLocation();
-
-
-
+  toggleFailure();
+  refreshLocation();
 }
-
 
 
 
