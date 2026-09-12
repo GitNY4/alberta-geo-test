@@ -969,10 +969,15 @@ button{
     emailWatchTimer = window.setTimeout(function(){
       if (!emailWatchActive) return;
 
-      // Timeout elapsed and the page never backgrounded - no mail app
-      // likely opened. Don't queue the reset prompt; offer a fallback.
+      // Timeout elapsed and the page never backgrounded - we can't
+      // confirm a mail app opened. Offer the copy-instead fallback,
+      // but still show the reset prompt regardless: the point of the
+      // prompt is to prevent double-submitting the same Test ID, and
+      // that risk exists whether or not we could detect the app.
       emailWatchActive = false;
       showEmailFallback();
+      setPromptMarker(true);
+      showNewTestPrompt();
     }, EMAIL_WATCH_TIMEOUT);
   });
 
