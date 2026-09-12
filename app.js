@@ -1,5 +1,5 @@
 /*
- TestTrack app.js v7
+ TestTrack app.js v8
 */
 
 "use strict";
@@ -719,7 +719,10 @@ document.addEventListener("DOMContentLoaded", function () {
         accuracy: locationData.accuracy,
         capturedAt: locationData.capturedAt
       },
-      description: description.value.trim()
+      description: description.value.trim(),
+      media: window.TestTrackMedia
+        ? window.TestTrackMedia.getUrls()
+        : []
     };
   }
 
@@ -781,6 +784,18 @@ document.addEventListener("DOMContentLoaded", function () {
        delayed or indirect navigation.
       */
       window.location.href = mailtoUrl;
+
+      /*
+       Fired at the exact moment the mailto link is triggered - not on
+       click, not on a guessed delay. The inline script in index.html
+       listens for this to know precisely when to start watching for
+       whether a mail app actually opened.
+      */
+      document.dispatchEvent(
+        new CustomEvent("testtrack:email-sent", {
+          detail: { testId: data.testId }
+        })
+      );
     } catch (error) {
       console.error(
         "Could not generate the TestTrack email:",
