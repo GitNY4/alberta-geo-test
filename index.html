@@ -348,6 +348,57 @@ button{
 }
 .hidden{display:none;}
 
+/* email send status banner (waiting / fallback) */
+.email-status{
+  margin-top:10px;
+  padding:11px 13px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--line-soft);
+  background:var(--bg-panel-alt);
+  font-family:var(--font-body);
+  font-size:12.5px;
+  color:var(--text-muted);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.email-status.hidden{display:none;}
+.email-status .spinner{
+  width:14px;
+  height:14px;
+  flex-shrink:0;
+  border-radius:50%;
+  border:2px solid var(--line);
+  border-top-color:var(--accent);
+  animation:tt-spin .7s linear infinite;
+}
+@keyframes tt-spin{to{transform:rotate(360deg);}}
+.email-status-text{flex:1;min-width:0;}
+.email-status-action{
+  width:auto;
+  flex-shrink:0;
+  background:var(--accent);
+  color:#052015;
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:12px;
+  padding:8px 12px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+}
+.email-status-dismiss{
+  width:auto;
+  flex-shrink:0;
+  background:transparent;
+  color:var(--text-faint);
+  font-family:var(--font-body);
+  font-size:12px;
+  padding:8px 6px;
+  border:none;
+  cursor:pointer;
+}
+
 /* New Test ID confirmation */
 .confirm-overlay{
   position:fixed;
@@ -593,6 +644,13 @@ button{
     <button type="button" class="btn-primary" id="copyJSON">Copy JSON</button>
     <button type="button" class="btn-secondary" id="generateEmail">Generate Test Email</button>
     <button type="button" class="btn-ghost" id="reset">Reset Test</button>
+
+    <div class="email-status hidden" id="emailStatus" role="status" aria-live="polite">
+      <span class="spinner" id="emailStatusSpinner"></span>
+      <span class="email-status-text" id="emailStatusText">Opening your email app…</span>
+      <button type="button" class="email-status-action hidden" id="emailStatusCopyBtn">Copy JSON instead</button>
+      <button type="button" class="email-status-dismiss hidden" id="emailStatusDismiss">Dismiss</button>
+    </div>
   </div>
 </div>
 
@@ -790,14 +848,9 @@ button{
   }
 
   // Capture mode does not replace or cancel the existing app.js functions.
-  // Copy JSON and Generate Test Email continue to run normally.
+  // Copy JSON continues to run normally.
   copyButton.addEventListener("click", function(){
     queueNewTestPrompt(400);
-  }, true);
-
-  emailButton.addEventListener("click", function(){
-    // If an email app opens, the prompt appears when this app becomes visible again.
-    queueNewTestPrompt(700);
   }, true);
 
   yesButton.addEventListener("click", function(){
@@ -851,6 +904,100 @@ button{
 
   // Also show it after a page reload when the URL marker is present.
   window.setTimeout(showNewTestPrompt, 100);
+
+  // ---------------------------------------------------------------------
+  // Email-send detection.
+  //
+  // app.js dispatches "testtrack:email-sent" at the exact moment it sets
+  // window.location.href to the mailto: link - not on button click, since
+  // generateEmail() is async (it awaits an IP lookup first) and a fixed
+  // delay from click would be unreliable.
+  //
+  // From that moment we watch for the page to go into the background
+  // (Page Visibility API). If it does within EMAIL_WATCH_TIMEOUT, that's
+  // a strong signal the OS handed off to a mail app, so we queue the
+  // reset-confirmation prompt for when the user switches back. If the
+  // timeout elapses and the page never backgrounded, we assume no mail
+  // app is configured and offer to copy the JSON instead.
+  // ---------------------------------------------------------------------
+
+  var EMAIL_WATCH_TIMEOUT = 1400;
+
+  var emailStatus = document.getElementById("emailStatus");
+  var emailStatusSpinner = document.getElementById("emailStatusSpinner");
+  var emailStatusText = document.getElementById("emailStatusText");
+  var emailStatusCopyBtn = document.getElementById("emailStatusCopyBtn");
+  var emailStatusDismiss = document.getElementById("emailStatusDismiss");
+
+  var emailWatchTimer = null;
+  var emailWatchActive = false;
+
+  function showEmailWaiting(){
+    emailStatus.classList.remove("hidden");
+    emailStatusSpinner.classList.remove("hidden");
+    emailStatusText.textContent = "Opening your email app…";
+    emailStatusCopyBtn.classList.add("hidden");
+    emailStatusDismiss.classList.add("hidden");
+  }
+
+  function showEmailFallback(){
+    emailStatusSpinner.classList.add("hidden");
+    emailStatusText.textContent = "Couldn't confirm an email app opened.";
+    emailStatusCopyBtn.classList.remove("hidden");
+    emailStatusDismiss.classList.remove("hidden");
+  }
+
+  function hideEmailStatus(){
+    emailStatus.classList.add("hidden");
+  }
+
+  function clearEmailWatch(){
+    emailWatchActive = false;
+
+    if (emailWatchTimer){
+      window.clearTimeout(emailWatchTimer);
+      emailWatchTimer = null;
+    }
+  }
+
+  document.addEventListener("testtrack:email-sent", function(){
+    clearEmailWatch();
+
+    emailWatchActive = true;
+    showEmailWaiting();
+
+    emailWatchTimer = window.setTimeout(function(){
+      if (!emailWatchActive) return;
+
+      // Timeout elapsed and the page never backgrounded - no mail app
+      // likely opened. Don't queue the reset prompt; offer a fallback.
+      emailWatchActive = false;
+      showEmailFallback();
+    }, EMAIL_WATCH_TIMEOUT);
+  });
+
+  document.addEventListener("visibilitychange", function(){
+    if (document.visibilityState === "hidden" && emailWatchActive){
+      // The tab backgrounded while we were watching - treat this as
+      // confirmation that a mail app opened.
+      clearEmailWatch();
+      hideEmailStatus();
+
+      // Don't show the reset prompt now (the tab is hidden); queue it so
+      // the existing focus/visibilitychange/pageshow handlers above show
+      // it the moment the user switches back to TestTrack.
+      setPromptMarker(true);
+    }
+  });
+
+  emailStatusCopyBtn.addEventListener("click", function(){
+    hideEmailStatus();
+    copyButton.click();
+  });
+
+  emailStatusDismiss.addEventListener("click", function(){
+    hideEmailStatus();
+  });
 })();
 </script>
 </body>
