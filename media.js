@@ -1,4 +1,6 @@
-/* TestTrack — media.js
+
+
+ /* TestTrack — media.js
    Handles: photo/video capture and upload to Cloudinary, linked to the
    testId that app.js generates. Renders into <div id="mediaSlot"></div>
    in index.html. Add <script src="media.js"></script> to index.html
